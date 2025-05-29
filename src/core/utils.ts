@@ -117,6 +117,25 @@ export interface SlackMessage {
 }
 
 /**
+ * Discord 메시지 전송 인터페이스
+ */
+export interface DiscordMessage {
+	content: string;
+	username?: string;
+	avatar_url?: string;
+	embeds?: Array<{
+		color?: number;
+		title?: string;
+		description?: string;
+		fields?: Array<{
+			name: string;
+			value: string;
+			inline?: boolean;
+		}>;
+	}>;
+}
+
+/**
  * Slack Hook URL을 이용해서 메시지 전송
  */
 export async function sendSlackMessage(
@@ -125,13 +144,13 @@ export async function sendSlackMessage(
 ): Promise<{ success: boolean; error?: string }> {
 	try {
 		// Hook URL 가져오기 (파라미터 또는 환경변수에서)
-		const slackHookUrl = hookUrl || process.env.SLACK_HOOK_URL;
+		const slackHookUrl = hookUrl || process.env.SLACK_WEBHOOK_URL;
 
 		if (!slackHookUrl) {
 			return {
 				success: false,
 				error:
-					'SLACK_HOOK_URL 환경변수가 설정되지 않았습니다. MCP 서버 설정에서 env.SLACK_HOOK_URL을 추가해주세요.'
+					'SLACK_WEBHOOK_URL 환경변수가 설정되지 않았습니다. MCP 서버 설정에서 env.SLACK_WEBHOOK_URL을 추가해주세요.'
 			};
 		}
 
@@ -153,6 +172,57 @@ export async function sendSlackMessage(
 			return {
 				success: false,
 				error: `Slack API 오류 (${response.status}): ${errorText}`
+			};
+		}
+
+		return { success: true };
+	} catch (error) {
+		return {
+			success: false,
+			error: `네트워크 오류: ${
+				error instanceof Error ? error.message : String(error)
+			}`
+		};
+	}
+}
+
+/**
+ * Discord Webhook을 이용해서 메시지 전송
+ */
+export async function sendDiscordMessage(
+	message: DiscordMessage | string,
+	hookUrl?: string
+): Promise<{ success: boolean; error?: string }> {
+	try {
+		// Hook URL 가져오기 (파라미터 또는 환경변수에서)
+		const discordHookUrl = hookUrl || process.env.DISCORD_WEBHOOK_URL;
+
+		if (!discordHookUrl) {
+			return {
+				success: false,
+				error:
+					'DISCORD_WEBHOOK_URL 환경변수가 설정되지 않았습니다. MCP 서버 설정에서 env.DISCORD_WEBHOOK_URL을 추가해주세요.'
+			};
+		}
+
+		// 메시지 형식 맞추기
+		const payload: DiscordMessage =
+			typeof message === 'string' ? { content: message } : message;
+
+		// HTTP 요청 전송
+		const response = await fetch(discordHookUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			return {
+				success: false,
+				error: `Discord API 오류 (${response.status}): ${errorText}`
 			};
 		}
 
@@ -212,6 +282,49 @@ export async function notifyTaskCompletion(
 }
 
 /**
+ * 태스크 완료 알림을 Discord로 전송
+ */
+export async function notifyTaskCompletionDiscord(
+	taskId: string,
+	taskName: string,
+	projectName?: string
+): Promise<{ success: boolean; error?: string }> {
+	const message: DiscordMessage = {
+		content: `✅ 태스크 완료!`,
+		username: 'Task Actions Bot',
+		embeds: [
+			{
+				color: 0x00ff00, // 녹색
+				title: '태스크 정보',
+				fields: [
+					{
+						name: '태스크 ID',
+						value: taskId,
+						inline: true
+					},
+					{
+						name: '태스크 이름',
+						value: taskName,
+						inline: true
+					},
+					...(projectName
+						? [
+								{
+									name: '프로젝트',
+									value: projectName,
+									inline: true
+								}
+						  ]
+						: [])
+				]
+			}
+		]
+	};
+
+	return await sendDiscordMessage(message);
+}
+
+/**
  * 프로젝트 초기화 알림을 Slack으로 전송
  */
 export async function notifyProjectInit(
@@ -243,4 +356,37 @@ export async function notifyProjectInit(
 	};
 
 	return await sendSlackMessage(message);
+}
+
+/**
+ * 프로젝트 초기화 알림을 Discord로 전송
+ */
+export async function notifyProjectInitDiscord(
+	projectName: string,
+	author: string
+): Promise<{ success: boolean; error?: string }> {
+	const message: DiscordMessage = {
+		content: `🚀 새 프로젝트가 초기화되었습니다!`,
+		username: 'Task Actions Bot',
+		embeds: [
+			{
+				color: 0x36a64f, // 녹색
+				title: '프로젝트 정보',
+				fields: [
+					{
+						name: '프로젝트 이름',
+						value: projectName,
+						inline: true
+					},
+					{
+						name: '작성자',
+						value: author,
+						inline: true
+					}
+				]
+			}
+		]
+	};
+
+	return await sendDiscordMessage(message);
 }

@@ -17,12 +17,13 @@ export const TASK_DONE_ACTION_TEMPLATE: YamlTemplate = {
 4. 태스크 상태를 'done'으로 변경
 5. 팀에 완료 알림 전송
 
-Slack 알림 전송:
-- SLACK_HOOK_URL 환경변수가 설정되어 있으면 Slack으로 태스크 완료 알림을 전송하세요
+알림 전송:
+- SLACK_WEBHOOK_URL 환경변수가 설정되어 있으면 Slack으로 태스크 완료 알림을 전송하세요
+- DISCORD_WEBHOOK_URL 환경변수가 설정되어 있으면 Discord로 태스크 완료 알림을 전송하세요
 - 알림에는 태스크 ID, 태스크 이름, 프로젝트 정보를 포함하세요
 - 전송 실패 시에도 오류를 표시하고 계속 진행하세요
 
-알림 메시지 예시:
+Slack 알림 메시지 예시:
 {
   "text": "✅ 태스크 완료!",
   "username": "Task Actions Bot",
@@ -41,6 +42,30 @@ Slack 알림 전송:
           "title": "태스크 이름",
           "value": "사용자 인증 기능 구현",
           "short": true
+        }
+      ]
+    }
+  ]
+}
+
+Discord 알림 메시지 예시:
+{
+  "content": "✅ 태스크 완료!",
+  "username": "Task Actions Bot",
+  "embeds": [
+    {
+      "color": 65280,
+      "title": "태스크 정보",
+      "fields": [
+        {
+          "name": "태스크 ID",
+          "value": "TASK-001",
+          "inline": true
+        },
+        {
+          "name": "태스크 이름",
+          "value": "사용자 인증 기능 구현",
+          "inline": true
         }
       ]
     }

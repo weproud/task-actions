@@ -22,7 +22,13 @@ export {
 	getDefaultAuthor,
 	printDirectoryTree,
 	printNextSteps,
-	groupBy
+	groupBy,
+	sendSlackMessage,
+	sendDiscordMessage,
+	notifyTaskCompletion,
+	notifyTaskCompletionDiscord,
+	notifyProjectInit,
+	notifyProjectInitDiscord
 } from './utils';
 
 // 타입 정의들

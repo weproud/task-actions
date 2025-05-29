@@ -57,8 +57,8 @@ export interface TasksConfig {
 }
 
 export interface VarsConfig {
-	slack_hook_url?: string;
-	discord_hook_url?: string;
+	slack_webhook_url?: string;
+	discord_webhook_url?: string;
 	github_token?: string;
 	[key: string]: string | number | boolean | undefined;
 }
@@ -76,8 +76,8 @@ export interface TemplateVariables {
 	branchPrefix?: string;
 
 	// 환경 설정
-	slackHookUrl?: string;
-	discordHookUrl?: string;
+	slackWebhookUrl?: string;
+	discordWebhookUrl?: string;
 	githubToken?: string;
 
 	// 태스크 관련 (옵셔널)

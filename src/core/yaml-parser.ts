@@ -65,15 +65,26 @@ export class YamlParser {
 		// 환경 설정 추출
 		const env = parsed.environment as Record<string, unknown> | undefined;
 		if (env) {
-			if (typeof env.slackHookUrl === 'string') {
-				variables.slackHookUrl = env.slackHookUrl;
+			if (typeof env.slackWebhookUrl === 'string') {
+				variables.slackWebhookUrl = env.slackWebhookUrl;
 			}
-			if (typeof env.discordHookUrl === 'string') {
-				variables.discordHookUrl = env.discordHookUrl;
+			if (typeof env.discordWebhookUrl === 'string') {
+				variables.discordWebhookUrl = env.discordWebhookUrl;
 			}
 			if (typeof env.githubToken === 'string') {
 				variables.githubToken = env.githubToken;
 			}
+		}
+
+		// 최상위 레벨에서도 webhook 설정 확인 (새로운 형식)
+		if (typeof parsed.slack_webhook_url === 'string') {
+			variables.slackWebhookUrl = parsed.slack_webhook_url;
+		}
+		if (typeof parsed.discord_webhook_url === 'string') {
+			variables.discordWebhookUrl = parsed.discord_webhook_url;
+		}
+		if (typeof parsed.github_token === 'string') {
+			variables.githubToken = parsed.github_token;
 		}
 
 		return variables;

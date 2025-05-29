@@ -60,9 +60,9 @@ cd mcp-server
 
 4. **Claude Desktop 재시작**
 
-### 선택사항: Slack 알림 설정
+### 선택사항: 알림 설정
 
-태스크 완료 시 Slack 알림을 받으려면 `env` 섹션에 `SLACK_HOOK_URL`을 추가하세요:
+태스크 완료 시 Slack이나 Discord 알림을 받으려면 `env` 섹션에 웹훅 URL을 추가하세요:
 
 ```json
 {
@@ -73,7 +73,8 @@ cd mcp-server
 				"/Users/raiiz/labs/workspace/task-actions/mcp-server/dist/index.js"
 			],
 			"env": {
-				"SLACK_HOOK_URL": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+				"SLACK_WEBHOOK_URL": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+				"DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK"
 			}
 		}
 	}
@@ -85,6 +86,13 @@ cd mcp-server
 1. [Slack API](https://api.slack.com/apps)에서 새 앱 생성
 2. "Incoming Webhooks" 기능 활성화
 3. 알림을 받을 채널 선택 후 Webhook URL 생성
+4. 생성된 URL을 위의 설정에 추가
+
+**Discord Webhook URL 생성 방법:**
+
+1. Discord 서버에서 알림을 받을 채널 선택
+2. 채널 설정 → 연동 → 웹후크 → 새 웹후크 생성
+3. "웹후크 URL 복사"를 클릭하여 URL 획득
 4. 생성된 URL을 위의 설정에 추가
 
 ## 🎯 3단계: 테스트

@@ -39,8 +39,8 @@ export async function collectDefaultVariables(): Promise<TemplateVariables> {
 		author,
 		version: PROJECT_CONSTANTS.DEFAULT_VERSION,
 		branchPrefix: PROJECT_CONSTANTS.DEFAULT_BRANCH_PREFIX,
-		slackHookUrl: DEFAULT_URLS.SLACK_WEBHOOK,
-		discordHookUrl: DEFAULT_URLS.DISCORD_WEBHOOK,
+		slackWebhookUrl: DEFAULT_URLS.SLACK_WEBHOOK,
+		discordWebhookUrl: DEFAULT_URLS.DISCORD_WEBHOOK,
 		githubToken: DEFAULT_URLS.GITHUB_TOKEN_PLACEHOLDER,
 		repositoryUrl: DEFAULT_URLS.REPOSITORY_TEMPLATE(author, projectName),
 		testEnvironment: PROJECT_CONSTANTS.DEFAULT_TEST_ENVIRONMENT,
@@ -219,6 +219,9 @@ function createDefaultVariables(): TemplateVariables {
 		author: getDefaultAuthor(),
 		version: PROJECT_CONSTANTS.DEFAULT_VERSION,
 		branchPrefix: PROJECT_CONSTANTS.DEFAULT_BRANCH_PREFIX,
+		slackWebhookUrl: DEFAULT_URLS.SLACK_WEBHOOK,
+		discordWebhookUrl: DEFAULT_URLS.DISCORD_WEBHOOK,
+		githubToken: DEFAULT_URLS.GITHUB_TOKEN_PLACEHOLDER,
 		testEnvironment: PROJECT_CONSTANTS.DEFAULT_TEST_ENVIRONMENT,
 		complexityLevel: PROJECT_CONSTANTS.DEFAULT_COMPLEXITY_LEVEL
 	};

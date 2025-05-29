@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { notifyTaskCompletion } from './utils';
+import { notifyTaskCompletion, notifyTaskCompletionDiscord } from './utils';
 
 const execAsync = promisify(exec);
 
@@ -287,6 +287,7 @@ Good luck! 🚀`;
  */
 interface CompleteTaskOptions {
 	skipSlack?: boolean;
+	skipDiscord?: boolean;
 	force?: boolean;
 }
 
@@ -368,6 +369,26 @@ export async function completeTask(
 			}
 		} else {
 			console.log('\n📤 Slack 알림이 건너뛰어졌습니다.');
+		}
+
+		// Discord 알림 전송 (옵션에 따라)
+		if (!options.skipDiscord) {
+			console.log('\n📤 Discord 알림을 전송합니다...');
+
+			const discordResult = await notifyTaskCompletionDiscord(
+				taskConfig.id,
+				taskConfig.name,
+				projectName
+			);
+
+			if (discordResult.success) {
+				console.log('✅ Discord 알림이 성공적으로 전송되었습니다.');
+			} else {
+				console.warn(`⚠️  Discord 알림 전송 실패: ${discordResult.error}`);
+				console.warn('   태스크는 정상적으로 완료되었습니다.');
+			}
+		} else {
+			console.log('\n📤 Discord 알림이 건너뛰어졌습니다.');
 		}
 
 		console.log(`\n🎉 Task "${taskConfig.name}"이 성공적으로 완료되었습니다!`);

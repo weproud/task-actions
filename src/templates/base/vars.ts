@@ -4,8 +4,8 @@ export const VARS_BASE_TEMPLATE: YamlTemplate = {
 	name: 'base/vars.yaml',
 	description: '{{projectName}} 환경 변수 설정',
 	content: {
-		slack_hook_url: '{{slackHookUrl}}',
-		discord_hook_url: '{{discordHookUrl}}',
+		slack_webhook_url: '{{slackWebhookUrl}}',
+		discord_webhook_url: '{{discordWebhookUrl}}',
 		github_token: '{{githubToken}}',
 		project: {
 			name: '{{projectName}}',

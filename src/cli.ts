@@ -173,14 +173,16 @@ startCmd
 // done 명령어
 program
 	.command('done')
-	.description('태스크를 완료로 표시하고 Slack 알림을 전송합니다')
+	.description('태스크를 완료로 표시하고 알림을 전송합니다')
 	.argument('<task-id>', '완료할 태스크 ID')
 	.option('--skip-slack', 'Slack 알림을 건너뜁니다')
+	.option('--skip-discord', 'Discord 알림을 건너뜁니다')
 	.option('--force', '이미 완료된 태스크도 강제로 다시 완료 처리합니다')
 	.action(async (taskId, options) => {
 		try {
 			await completeTask(taskId, {
 				skipSlack: options.skipSlack,
+				skipDiscord: options.skipDiscord,
 				force: options.force
 			});
 		} catch (error) {

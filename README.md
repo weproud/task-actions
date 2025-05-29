@@ -261,14 +261,20 @@ task-actions start task <task-id> --output prompt.md --clipboard
 
 를 통합하여 개발용 통합 Prompt를 생성합니다.
 
-### 태스크 완료 및 Slack 알림
+### 태스크 완료 및 알림 전송
 
 ```bash
-# 태스크를 완료로 표시하고 Slack 알림 전송
+# 태스크를 완료로 표시하고 Slack, Discord 알림 전송
 task-actions done <task-id>
 
 # Slack 알림 없이 태스크만 완료 처리
 task-actions done <task-id> --skip-slack
+
+# Discord 알림 없이 태스크만 완료 처리
+task-actions done <task-id> --skip-discord
+
+# 모든 알림 없이 태스크만 완료 처리
+task-actions done <task-id> --skip-slack --skip-discord
 
 # 이미 완료된 태스크를 강제로 다시 완료 처리
 task-actions done <task-id> --force
@@ -278,11 +284,12 @@ task-actions done <task-id> --force
 
 - 태스크 상태를 'done'으로 변경
 - tasks.yaml 파일 업데이트
-- SLACK_HOOK_URL이 설정되어 있으면 Slack으로 완료 알림 전송
+- SLACK_WEBHOOK_URL이 설정되어 있으면 Slack으로 완료 알림 전송
+- DISCORD_WEBHOOK_URL이 설정되어 있으면 Discord로 완료 알림 전송
 
-### Slack 연동 설정
+### Slack 및 Discord 연동 설정
 
-#### 1. Slack Hook URL 설정
+#### 1. 환경변수 설정
 
 MCP 서버 설정에서 환경변수를 추가하세요:
 
@@ -295,7 +302,8 @@ MCP 서버 설정에서 환경변수를 추가하세요:
 			"command": "npx",
 			"args": ["-y", "@modelcontextprotocol/task-actions"],
 			"env": {
-				"SLACK_HOOK_URL": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+				"SLACK_WEBHOOK_URL": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+				"DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK"
 			},
 			"description": "Task Actions AI - GitHub Actions 스타일의 개발 워크플로우를 관리하는 MCP 서버"
 		}
@@ -308,19 +316,35 @@ MCP 서버 설정에서 환경변수를 추가하세요:
 1. [Slack API](https://api.slack.com/apps)에서 새 앱 생성
 2. "Incoming Webhooks" 기능 활성화
 3. 채널을 선택하고 Webhook URL 생성
-4. 생성된 URL을 `SLACK_HOOK_URL` 환경변수에 설정
+4. 생성된 URL을 `SLACK_WEBHOOK_URL` 환경변수에 설정
 
-#### 3. Slack 메시지 전송 예시
+#### 3. Discord Webhook URL 생성
 
-프로그래밍 방식으로 Slack 메시지를 보낼 수도 있습니다:
+1. Discord 서버에서 알림을 받을 채널을 선택
+2. 채널 설정 → 연동 → 웹후크 → 새 웹후크 생성
+3. 웹후크 이름과 아바타 설정 (선택사항)
+4. "웹후크 URL 복사"를 클릭하여 URL 획득
+5. 생성된 URL을 `DISCORD_WEBHOOK_URL` 환경변수에 설정
+
+#### 4. 메시지 전송 예시
+
+프로그래밍 방식으로 알림을 보낼 수도 있습니다:
 
 ```typescript
-import { sendSlackMessage, notifyTaskCompletion } from 'task-actions';
+import {
+	sendSlackMessage,
+	sendDiscordMessage,
+	notifyTaskCompletion,
+	notifyTaskCompletionDiscord
+} from 'task-actions';
 
-// 간단한 텍스트 메시지
-await sendSlackMessage('Hello, World!');
+// Slack 메시지
+await sendSlackMessage('Hello, Slack!');
 
-// 풍부한 형식의 메시지
+// Discord 메시지
+await sendDiscordMessage('Hello, Discord!');
+
+// 풍부한 형식의 Slack 메시지
 await sendSlackMessage({
 	text: '새로운 알림입니다!',
 	username: 'Task Bot',
@@ -340,8 +364,28 @@ await sendSlackMessage({
 	]
 });
 
+// 풍부한 형식의 Discord 메시지
+await sendDiscordMessage({
+	content: '새로운 알림입니다!',
+	username: 'Task Bot',
+	embeds: [
+		{
+			color: 0x00ff00,
+			title: '작업 완료',
+			fields: [
+				{
+					name: '프로젝트',
+					value: 'My Project',
+					inline: true
+				}
+			]
+		}
+	]
+});
+
 // 태스크 완료 알림
 await notifyTaskCompletion('TASK-001', '사용자 인증 구현', 'My Project');
+await notifyTaskCompletionDiscord('TASK-001', '사용자 인증 구현', 'My Project');
 ```
 
 ### 사용 가능한 템플릿 목록 조회
@@ -419,8 +463,8 @@ await generator.generateTask('001', 'Setup', 'Initial project setup');
 프로젝트 전역 변수를 정의합니다.
 
 ```yaml
-slack_hook_url: 'https://hooks.slack.com/...'
-discord_hook_url: 'https://discord.com/api/webhooks/...'
+slack_webhook_url: 'https://hooks.slack.com/...'
+discord_webhook_url: 'https://discord.com/api/webhooks/...'
 github_token: '${GITHUB_TOKEN}'
 ```
 
