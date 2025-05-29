@@ -73,17 +73,26 @@ async function backupExistingTaskActionsDir(currentDir: string): Promise<void> {
 		return; // 백업할 디렉토리가 없음
 	}
 
-	// 현재 시간을 yyyyMMddHHmm 형식으로 포맷
+	// 현재 시간을 yyyyMMddHHmmss 형식으로 포맷 (초 추가)
 	const now = new Date();
 	const year = now.getFullYear();
 	const month = String(now.getMonth() + 1).padStart(2, '0');
 	const day = String(now.getDate()).padStart(2, '0');
 	const hour = String(now.getHours()).padStart(2, '0');
 	const minute = String(now.getMinutes()).padStart(2, '0');
-	const timestamp = `${year}${month}${day}${hour}${minute}`;
+	const second = String(now.getSeconds()).padStart(2, '0');
+	const timestamp = `${year}${month}${day}${hour}${minute}${second}`;
 
-	const backupDirName = `${TASK_ACTIONS_DIR}-${timestamp}`;
-	const backupPath = path.join(currentDir, backupDirName);
+	let backupDirName = `${TASK_ACTIONS_DIR}-${timestamp}`;
+	let backupPath = path.join(currentDir, backupDirName);
+	let counter = 1;
+
+	// 동일한 이름의 백업 디렉토리가 있으면 증분 번호 추가
+	while (FileSystemUtils.fileExists(backupPath)) {
+		backupDirName = `${TASK_ACTIONS_DIR}-${timestamp}-${counter}`;
+		backupPath = path.join(currentDir, backupDirName);
+		counter++;
+	}
 
 	try {
 		// 기존 디렉토리를 백업 디렉토리로 이름 변경

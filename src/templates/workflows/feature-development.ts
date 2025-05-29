@@ -15,10 +15,6 @@ export const FEATURE_DEVELOPMENT_WORKFLOW_TEMPLATE: YamlTemplate = {
 					uses: 'actions/create-branch.yaml'
 				},
 				{
-					name: 'Development',
-					prompt: 'actions/development.yaml'
-				},
-				{
 					name: 'Test',
 					uses: 'actions/test.yaml'
 				},
@@ -39,6 +35,7 @@ export const FEATURE_DEVELOPMENT_WORKFLOW_TEMPLATE: YamlTemplate = {
 					uses: 'actions/send-message-slack.yaml'
 				}
 			]
-		}
+		},
+		prompt: `steps 순서대로 작업을 수행합니다.`
 	}
 };

@@ -48,8 +48,16 @@ export const TEMPLATE_GROUPS: TemplateGroup[] = [
 				filename: 'create-pull-request.yaml'
 			},
 			{
+				template: actionsTemplates.SEND_MESSAGE_SLACK_ACTION_TEMPLATE,
+				filename: 'send-message-slack.yaml'
+			},
+			{
 				template: actionsTemplates.TASK_DONE_ACTION_TEMPLATE,
 				filename: 'task-done.yaml'
+			},
+			{
+				template: actionsTemplates.TEST_ACTION_TEMPLATE,
+				filename: 'test.yaml'
 			}
 		]
 	},

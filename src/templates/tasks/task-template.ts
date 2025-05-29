@@ -8,6 +8,7 @@ export const TASK_TEMPLATE: YamlTemplate = {
 		kind: 'task',
 		id: '{{taskId}}',
 		name: '{{taskName}}',
+		description: '{{taskDescription}}',
 		status: 'todo',
 		jobs: {
 			workflow: 'workflows/feature-development.yaml',
@@ -20,8 +21,7 @@ export const TASK_TEMPLATE: YamlTemplate = {
 				'mcps/playwright.yaml'
 			]
 		},
-		prompt: `{{taskDescription}}
-
-요구사항을 분석하여 기능을 구현하고 테스트합니다. 기술 스택, 아키텍처, API 설계를 고려하여 개발하세요.`
+		systemprompt: `주어진 요구사항을 분석하여 기능을 구현하고 테스트합니다. 기술 스택, 아키텍처, API 설계를 고려하여 개발하세요`,
+		prompt: `<여기에 태스크 설명을 입력하세요>`
 	}
 };
