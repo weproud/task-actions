@@ -74,9 +74,19 @@ src/generator/
 npm install -g task-actions
 ```
 
-## 🤖 MCP 서버 (AI 어시스턴트 연동)
+## 🤖 MCP 서버 (AI 어시스턴트 연동) - FastMCP 기반
 
-Task Actions CLI를 Claude Desktop과 같은 AI 어시스턴트와 연동하여 사용할 수 있는 Model Context Protocol (MCP) 서버를 제공합니다.
+Task Actions CLI를 Claude Desktop과 같은 AI 어시스턴트와 연동하여 사용할 수 있는 **FastMCP 기반** Model Context Protocol (MCP) 서버를 제공합니다.
+
+### ✨ **FastMCP 2.0 업그레이드**
+
+- **기존**: `@modelcontextprotocol/sdk` 기반
+- **새로운**: `fastmcp` 기반 (TypeScript 프레임워크)
+- **개선사항**:
+  - Zod 스키마를 통한 자동 타입 안전성
+  - 더 간단한 도구 정의와 적은 보일러플레이트
+  - 내장 이벤트 시스템
+  - 향상된 개발자 경험 (`fastmcp dev`, `fastmcp inspect`)
 
 ### 🔧 MCP 서버 설치
 
@@ -88,8 +98,9 @@ cd mcp-server
 설치 스크립트가 자동으로:
 
 1. 부모 프로젝트와 MCP 서버를 빌드
-2. Claude Desktop 설정 파일 예제를 생성
-3. 설정 방법을 안내
+2. FastMCP 의존성 설치
+3. Claude Desktop 설정 파일 예제를 생성
+4. 설정 방법을 안내
 
 ### ⚡ 빠른 설정 (Claude Desktop)
 
@@ -109,13 +120,31 @@ cd mcp-server
    		"task-actions": {
    			"command": "node",
    			"args": ["/your/path/to/task-actions/mcp-server/dist/index.js"],
-   			"env": {}
+   			"env": {},
+   			"description": "Task Actions CLI를 위한 FastMCP 기반 MCP 서버"
    		}
    	}
    }
    ```
 
 3. **Claude Desktop 재시작**
+
+### 🧪 개발 및 테스트
+
+FastMCP의 강력한 개발 도구를 활용하세요:
+
+```bash
+cd mcp-server
+
+# 대화형 개발 서버
+npm run dev
+
+# 웹 인터페이스로 테스트
+npm run inspect
+
+# 일반 실행
+npm start
+```
 
 ### 🎯 AI 어시스턴트에서 사용 예시
 

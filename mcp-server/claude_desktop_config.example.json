@@ -1,9 +1,10 @@
 {
-  "mcpServers": {
-    "task-actions": {
-      "command": "node",
-      "args": ["/Users/raiiz/labs/workspace/task-actions/mcp-server/dist/index.js"],
-      "env": {}
-    }
-  }
+	"mcpServers": {
+		"task-actions": {
+			"command": "node",
+			"args": ["/your/path/to/task-actions/mcp-server/dist/index.js"],
+			"env": {},
+			"description": "Task Actions CLI를 위한 FastMCP 기반 MCP 서버"
+		}
+	}
 }
