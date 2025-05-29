@@ -34,3 +34,5 @@ export type {
 } from './types';
 
 export type { ListTemplatesOptions } from './templates';
+
+export { startTask } from './task';

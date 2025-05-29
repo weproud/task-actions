@@ -98,8 +98,33 @@ task-actions generate mcp
 ### 새로운 태스크 생성
 
 ```bash
-task-actions task create "새로운 기능 개발" "사용자 인증 기능을 구현합니다"
+task-actions add task "새로운 기능 개발" "사용자 인증 기능을 구현합니다"
 ```
+
+### 태스크 시작 및 개발용 Prompt 생성
+
+```bash
+# 기본 prompt 출력
+task-actions start task <task-id>
+
+# Prompt를 파일로 저장
+task-actions start task <task-id> --output prompt.md
+
+# Prompt를 클립보드에 복사 (macOS만 지원)
+task-actions start task <task-id> --clipboard
+
+# 파일 저장과 클립보드 복사 동시 실행
+task-actions start task <task-id> --output prompt.md --clipboard
+```
+
+이 명령어는 task-jwt-provider.yaml 파일을 읽어서:
+
+- Task의 기본 정보와 요구사항
+- Workflow의 각 단계별 prompt (uses 파일들을 재귀적으로 수집)
+- Rules에 정의된 개발 규칙
+- MCPs의 활용 가이드
+
+를 통합하여 개발용 통합 Prompt를 생성합니다.
 
 ### 사용 가능한 템플릿 목록 조회
 

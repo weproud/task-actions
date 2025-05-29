@@ -10,7 +10,8 @@ import {
 	validateProject,
 	cleanProject,
 	printNextSteps,
-	listTemplates
+	listTemplates,
+	startTask
 } from './core';
 
 const program = new Command();
@@ -156,6 +157,30 @@ program
 			await cleanProject(options);
 		} catch (error) {
 			console.error('❌ 정리 중 오류가 발생했습니다:', error);
+			if (debugMode) {
+				console.error('🐛 스택 트레이스:', error);
+			}
+			process.exit(1);
+		}
+	});
+
+// start 명령어 그룹
+const startCmd = program
+	.command('start')
+	.description('태스크를 시작하고 개발용 prompt를 생성합니다');
+
+// start task 명령어
+startCmd
+	.command('task')
+	.description('지정된 task ID의 태스크를 시작합니다')
+	.argument('<task-id>', '시작할 태스크 ID')
+	.option('--output <file>', 'Prompt를 파일로 저장합니다')
+	.option('--clipboard', 'Prompt를 클립보드에 복사합니다 (macOS만 지원)')
+	.action(async (taskId, options) => {
+		try {
+			await startTask(taskId, options);
+		} catch (error) {
+			console.error('❌ 태스크 시작 중 오류가 발생했습니다:', error);
 			if (debugMode) {
 				console.error('🐛 스택 트레이스:', error);
 			}
