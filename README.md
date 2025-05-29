@@ -74,6 +74,82 @@ src/generator/
 npm install -g task-actions
 ```
 
+## 🤖 MCP 서버 (AI 어시스턴트 연동)
+
+Task Actions CLI를 Claude Desktop과 같은 AI 어시스턴트와 연동하여 사용할 수 있는 Model Context Protocol (MCP) 서버를 제공합니다.
+
+### 🔧 MCP 서버 설치
+
+```bash
+cd mcp-server
+./install.sh
+```
+
+설치 스크립트가 자동으로:
+
+1. 부모 프로젝트와 MCP 서버를 빌드
+2. Claude Desktop 설정 파일 예제를 생성
+3. 설정 방법을 안내
+
+### ⚡ 빠른 설정 (Claude Desktop)
+
+1. **Claude Desktop 종료**
+2. **설정 파일 편집** (macOS):
+
+   ```bash
+   # 설정 파일 열기
+   open ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   ```
+
+   다음 내용 추가:
+
+   ```json
+   {
+   	"mcpServers": {
+   		"task-actions": {
+   			"command": "node",
+   			"args": ["/your/path/to/task-actions/mcp-server/dist/index.js"],
+   			"env": {}
+   		}
+   	}
+   }
+   ```
+
+3. **Claude Desktop 재시작**
+
+### 🎯 AI 어시스턴트에서 사용 예시
+
+Claude Desktop에서 다음과 같이 대화할 수 있습니다:
+
+```
+사용자: "새로운 task-actions 프로젝트를 초기화해 주세요."
+Claude: init_project 도구를 사용하여 프로젝트를 초기화하겠습니다.
+
+사용자: "action 템플릿을 생성해 주세요."
+Claude: add_action 도구를 사용하여 액션 파일들을 생성하겠습니다.
+
+사용자: "user-auth라는 태스크를 만들어주세요."
+Claude: add_task 도구를 사용하여 사용자 인증 태스크를 생성하겠습니다.
+```
+
+### 🔍 제공되는 MCP Tools
+
+| Tool               | 설명                 | 매개변수                              |
+| ------------------ | -------------------- | ------------------------------------- |
+| `init_project`     | 프로젝트 초기화      | 없음                                  |
+| `add_action`       | Action 템플릿 생성   | 없음                                  |
+| `add_workflow`     | Workflow 템플릿 생성 | 없음                                  |
+| `add_mcp`          | MCP 템플릿 생성      | 없음                                  |
+| `add_rule`         | Rule 템플릿 생성     | 없음                                  |
+| `add_task`         | 새 태스크 생성       | `taskId`, `taskName?`, `description?` |
+| `list_templates`   | 템플릿 목록 조회     | `type?`                               |
+| `check_status`     | 프로젝트 상태 확인   | `detailed?`                           |
+| `validate_project` | 프로젝트 검증        | 없음                                  |
+| `clean_project`    | 프로젝트 정리        | `force?`                              |
+| `start_task`       | 태스크 시작          | `taskId`, `output?`, `clipboard?`     |
+
+자세한 MCP 서버 설정 및 사용법은 [`mcp-server/README.md`](./mcp-server/README.md)를 참조하세요.
+
 ## 🔧 사용법
 
 ### 프로젝트 초기화

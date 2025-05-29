@@ -1,0 +1,26 @@
+{
+	"name": "task-actions-mcp-server",
+	"version": "1.0.0",
+	"description": "Task Actions CLI를 위한 MCP 서버",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"dev": "tsc -w & nodemon dist/index.js",
+		"test": "node test-mcp.js"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.0.0",
+		"commander": "^14.0.0",
+		"js-yaml": "^4.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.15.24",
+		"@types/js-yaml": "^4.0.9",
+		"typescript": "^5.8.3",
+		"nodemon": "^3.0.0"
+	},
+	"bin": {
+		"task-actions-mcp": "./dist/index.js"
+	}
+}

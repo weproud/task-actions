@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "task-actions": {
+      "command": "node",
+      "args": ["/Users/raiiz/labs/workspace/task-actions/mcp-server/dist/index.js"],
+      "env": {}
+    }
+  }
+}
