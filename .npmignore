@@ -1,0 +1,31 @@
+# Source files
+src/
+*.ts
+tsconfig.json
+
+# Development files
+.prettierrc
+.prettierignore
+node_modules/
+.git/
+.gitignore
+
+# Test files
+test-*/
+
+# Task actions generated directories
+.task-actions*/
+
+# Performance test
+test-perf/
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+
+# Development documentation
+PRD.md
+IMPROVEMENTS.md
+
+# MCP server (if separate package)
+mcp-server/ 

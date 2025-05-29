@@ -34,18 +34,6 @@ server.addTool({
 	}
 });
 
-// 프로젝트 상태 확인 도구
-server.addTool({
-	name: 'check_status',
-	description: '프로젝트 상태를 확인합니다',
-	parameters: z.object({
-		detailed: z.boolean().optional().default(false).describe('상세한 정보 표시')
-	}),
-	execute: async (args) => {
-		return await tools.checkStatus(args.detailed);
-	}
-});
-
 // 태스크 시작 도구
 server.addTool({
 	name: 'start_task',

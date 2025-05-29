@@ -1,19 +1,46 @@
 {
-	"name": "task-actions",
+	"name": "task-actions-ai",
 	"version": "1.0.0",
-	"main": "index.js",
+	"description": "Task Actions CLI - 워크플로우 및 태스크 관리 도구. 프로젝트 구조를 체계적으로 관리하고 개발 워크플로우를 자동화하는 CLI 도구입니다.",
+	"main": "dist/index.js",
 	"bin": {
 		"task-actions": "./dist/cli.js"
 	},
+	"files": [
+		"dist/",
+		"README.md",
+		"QUICK_START.md"
+	],
 	"scripts": {
 		"build": "tsc",
 		"start": "node dist/index.js",
-		"dev": "tsc -w & nodemon dist/index.js"
+		"dev": "tsc -w & nodemon dist/index.js",
+		"prepublishOnly": "npm run build"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"description": "",
+	"keywords": [
+		"cli",
+		"task-management",
+		"workflow",
+		"automation",
+		"project-structure",
+		"development-tools",
+		"productivity",
+		"ai",
+		"assistant"
+	],
+	"author": "raiiz",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/raiiz/task-actions.git"
+	},
+	"homepage": "https://github.com/raiiz/task-actions#readme",
+	"bugs": {
+		"url": "https://github.com/raiiz/task-actions/issues"
+	},
+	"engines": {
+		"node": ">=16.0.0"
+	},
 	"devDependencies": {
 		"@types/commander": "^2.12.0",
 		"@types/node": "^22.15.24",

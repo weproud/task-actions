@@ -70,8 +70,38 @@ src/generator/
 
 ## 📦 설치
 
+### Global 설치 (권장)
+
 ```bash
-npm install -g task-actions
+npm install -g task-actions-ai
+```
+
+설치 후 어디서든 `task-actions` 명령어를 사용할 수 있습니다:
+
+```bash
+task-actions --help
+```
+
+### 로컬 개발용 설치
+
+프로젝트를 로컬에서 개발하거나 테스트하려면:
+
+```bash
+# 저장소 클론
+git clone https://github.com/raiiz/task-actions.git
+cd task-actions
+
+# 의존성 설치
+npm install
+
+# 빌드
+npm run build
+
+# 로컬 링크 (개발용)
+npm link
+
+# 이제 task-actions 명령어 사용 가능
+task-actions --help
 ```
 
 ## 🤖 MCP 서버 (AI 어시스턴트 연동) - FastMCP 기반
