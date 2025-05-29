@@ -1,10 +1,10 @@
 {
 	"mcpServers": {
 		"task-actions": {
-			"command": "node",
-			"args": ["/your/path/to/task-actions/mcp-server/dist/index.js"],
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/task-actions"],
 			"env": {},
-			"description": "Task Actions CLI를 위한 FastMCP 기반 MCP 서버"
+			"description": "Task Actions AI - GitHub Actions 스타일의 개발 워크플로우를 관리하는 MCP 서버"
 		}
 	}
 }

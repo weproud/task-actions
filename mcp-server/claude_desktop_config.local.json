@@ -1,0 +1,12 @@
+{
+	"mcpServers": {
+		"task-actions-local": {
+			"command": "node",
+			"args": [
+				"/Users/raiiz/labs/workspace/task-actions/mcp-server/dist/index.js"
+			],
+			"env": {},
+			"description": "Task Actions AI - 로컬 개발용 MCP 서버"
+		}
+	}
+}

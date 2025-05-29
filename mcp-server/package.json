@@ -1,15 +1,23 @@
 {
-	"name": "task-actions-mcp-server",
+	"name": "@modelcontextprotocol/task-actions",
 	"version": "2.0.0",
 	"description": "Task Actions CLI를 위한 FastMCP 기반 MCP 서버",
 	"main": "dist/index.js",
 	"type": "module",
+	"bin": {
+		"task-actions-mcp": "./dist/index.js"
+	},
+	"files": [
+		"dist/",
+		"README.md"
+	],
 	"scripts": {
 		"build": "tsc",
 		"start": "node dist/index.js",
 		"dev": "fastmcp dev src/index.ts",
 		"test": "fastmcp dev src/index.ts",
-		"inspect": "fastmcp inspect src/index.ts"
+		"inspect": "fastmcp inspect src/index.ts",
+		"prepublishOnly": "npm run build"
 	},
 	"dependencies": {
 		"fastmcp": "^2.1.4",
@@ -23,7 +31,22 @@
 		"typescript": "^5.8.3",
 		"tsx": "^4.6.2"
 	},
-	"bin": {
-		"task-actions-mcp": "./dist/index.js"
+	"keywords": [
+		"mcp",
+		"task-actions",
+		"cli",
+		"workflow",
+		"automation",
+		"ai-assistant"
+	],
+	"author": "raiiz",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/raiiz/task-actions.git",
+		"directory": "mcp-server"
+	},
+	"engines": {
+		"node": ">=16.0.0"
 	}
 }
