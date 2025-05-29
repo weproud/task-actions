@@ -38,11 +38,6 @@ export const TASK_TEMPLATE: YamlTemplate = {
 
   4. 테스트 요구사항
      - 단위 테스트 및 통합 테스트 계획
-     - 테스트 커버리지 목표
-
-  프로젝트: {{projectName}}
-  담당자: {{author}}
-  우선순위: {{priority}}
-  예상 소요시간: {{estimatedHours}}시간`
+     - 테스트 커버리지 목표`
 	}
 };
