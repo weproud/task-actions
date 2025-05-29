@@ -1,57 +1,111 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const execAsync = promisify(exec);
+// TypeScript에서 __dirname 사용하기 위한 설정
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 상위 디렉토리의 core 모듈들을 import
+import {
+	initProject,
+	generateByType,
+	generateTask,
+	checkProjectStatus,
+	validateProject,
+	cleanProject,
+	listTemplates,
+	startTask
+} from '../../src/core/index.js';
+
+import type { TemplateType } from '../../src/generator/index.js';
+import type {
+	StatusOptions,
+	CleanOptions,
+	ListTemplatesOptions
+} from '../../src/core/index.js';
 
 export class TaskActionsTools {
-	private readonly taskActionsCli: string;
+	private readonly originalCwd: string;
+	private readonly rootDir: string;
 
 	constructor() {
-		// task-actions CLI 경로 설정 (상위 디렉토리의 빌드된 CLI)
-		this.taskActionsCli = path.join(process.cwd(), '../dist/cli.js');
+		// 원래 작업 디렉터리를 저장
+		this.originalCwd = process.cwd();
+		// 프로젝트의 루트 디렉터리 설정
+		this.rootDir = path.join(__dirname, '../..');
 	}
 
-	private async executeCli(
-		command: string,
-		args: string[] = []
-	): Promise<string> {
+	private async executeInProjectRoot<T>(fn: () => Promise<T>): Promise<T> {
+		const originalCwd = process.cwd();
 		try {
-			const fullCommand = `node ${this.taskActionsCli} ${command} ${args.join(
-				' '
-			)}`;
-			const { stdout, stderr } = await execAsync(fullCommand, {
-				cwd: process.cwd(),
-				timeout: 30000 // 30초 타임아웃
-			});
-
-			const output = stdout + (stderr ? `\n\nWarnings/Errors:\n${stderr}` : '');
-			return output || `${command} 명령어가 성공적으로 실행되었습니다.`;
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-			throw new Error(`❌ 명령어 실행 중 오류가 발생했습니다: ${errorMessage}`);
+			// 작업 디렉터리를 프로젝트 루트로 변경
+			process.chdir(this.rootDir);
+			return await fn();
+		} finally {
+			// 원래 작업 디렉터리로 복원
+			process.chdir(originalCwd);
 		}
 	}
 
+	private async handleError(operation: string, error: any): Promise<string> {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		console.error(`❌ ${operation} 중 오류가 발생했습니다:`, errorMessage);
+		throw new Error(`❌ ${operation} 중 오류가 발생했습니다: ${errorMessage}`);
+	}
+
 	async initProject(): Promise<string> {
-		return this.executeCli('init');
+		try {
+			await this.executeInProjectRoot(async () => {
+				await initProject();
+			});
+			return '✅ 프로젝트 초기화가 완료되었습니다!';
+		} catch (error) {
+			return this.handleError('프로젝트 초기화', error);
+		}
 	}
 
 	async addAction(): Promise<string> {
-		return this.executeCli('add', ['action']);
+		try {
+			await this.executeInProjectRoot(async () => {
+				await generateByType('action');
+			});
+			return '✅ Action 파일이 성공적으로 생성되었습니다!';
+		} catch (error) {
+			return this.handleError('Action 파일 생성', error);
+		}
 	}
 
 	async addWorkflow(): Promise<string> {
-		return this.executeCli('add', ['workflow']);
+		try {
+			await this.executeInProjectRoot(async () => {
+				await generateByType('workflow');
+			});
+			return '✅ Workflow 파일이 성공적으로 생성되었습니다!';
+		} catch (error) {
+			return this.handleError('Workflow 파일 생성', error);
+		}
 	}
 
 	async addMcp(): Promise<string> {
-		return this.executeCli('add', ['mcp']);
+		try {
+			await this.executeInProjectRoot(async () => {
+				await generateByType('mcp');
+			});
+			return '✅ MCP 파일이 성공적으로 생성되었습니다!';
+		} catch (error) {
+			return this.handleError('MCP 파일 생성', error);
+		}
 	}
 
 	async addRule(): Promise<string> {
-		return this.executeCli('add', ['rule']);
+		try {
+			await this.executeInProjectRoot(async () => {
+				await generateByType('rule');
+			});
+			return '✅ Rule 파일이 성공적으로 생성되었습니다!';
+		} catch (error) {
+			return this.handleError('Rule 파일 생성', error);
+		}
 	}
 
 	async addTask(
@@ -59,36 +113,74 @@ export class TaskActionsTools {
 		taskName?: string,
 		description?: string
 	): Promise<string> {
-		const args = ['task', taskId];
-
-		if (taskName) {
-			args.push(taskName);
+		try {
+			await this.executeInProjectRoot(async () => {
+				const options = description ? { description } : undefined;
+				await generateTask(taskId, taskName, options);
+			});
+			return `✅ 태스크 "${taskId}"가 성공적으로 생성되었습니다!`;
+		} catch (error) {
+			return this.handleError('태스크 생성', error);
 		}
-
-		if (description) {
-			args.push('--description', description);
-		}
-
-		return this.executeCli('add', args);
 	}
 
 	async listTemplates(type?: string): Promise<string> {
-		const args = type ? ['--type', type] : [];
-		return this.executeCli('list', args);
+		try {
+			await this.executeInProjectRoot(async () => {
+				const options: ListTemplatesOptions = type ? { type } : {};
+				await listTemplates(options);
+			});
+			return '✅ 템플릿 목록 조회가 완료되었습니다!';
+		} catch (error) {
+			return this.handleError('템플릿 목록 조회', error);
+		}
 	}
 
 	async checkStatus(detailed?: boolean): Promise<string> {
-		const args = detailed ? ['--detailed'] : [];
-		return this.executeCli('status', args);
+		try {
+			const status = await this.executeInProjectRoot(async () => {
+				const options: StatusOptions = { detailed: detailed ?? false };
+				return await checkProjectStatus(options);
+			});
+
+			let result = '📊 프로젝트 상태:\n';
+			result += `- 상태: ${status.isInitialized ? '초기화됨' : '미초기화'}\n`;
+			result += `- 필수 파일: ${status.hasRequiredFiles ? '존재' : '누락'}\n`;
+
+			if (status.missingFiles && status.missingFiles.length > 0) {
+				result += '\n❌ 누락된 파일들:\n';
+				status.missingFiles.forEach((file) => {
+					result += `  - ${file}\n`;
+				});
+			}
+
+			return result;
+		} catch (error) {
+			return this.handleError('프로젝트 상태 확인', error);
+		}
 	}
 
 	async validateProject(): Promise<string> {
-		return this.executeCli('validate');
+		try {
+			await this.executeInProjectRoot(async () => {
+				await validateProject();
+			});
+			return '✅ 프로젝트 검증이 완료되었습니다!';
+		} catch (error) {
+			return this.handleError('프로젝트 검증', error);
+		}
 	}
 
 	async cleanProject(force?: boolean): Promise<string> {
-		const args = force ? ['--force'] : [];
-		return this.executeCli('clean', args);
+		try {
+			await this.executeInProjectRoot(async () => {
+				const options: CleanOptions = { force: force ?? false };
+				await cleanProject(options);
+			});
+			return '✅ 프로젝트 정리가 완료되었습니다!';
+		} catch (error) {
+			return this.handleError('프로젝트 정리', error);
+		}
 	}
 
 	async startTask(
@@ -96,16 +188,17 @@ export class TaskActionsTools {
 		output?: string,
 		clipboard?: boolean
 	): Promise<string> {
-		const args = ['task', taskId];
-
-		if (output) {
-			args.push('--output', output);
+		try {
+			await this.executeInProjectRoot(async () => {
+				const options = {
+					output,
+					clipboard: clipboard ?? false
+				};
+				await startTask(taskId, options);
+			});
+			return `✅ 태스크 "${taskId}"가 성공적으로 시작되었습니다!`;
+		} catch (error) {
+			return this.handleError('태스크 시작', error);
 		}
-
-		if (clipboard) {
-			args.push('--clipboard');
-		}
-
-		return this.executeCli('start', args);
 	}
 }

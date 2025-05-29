@@ -70,7 +70,6 @@ export async function startTask(
 	try {
 		console.log(`🚀 Task "${taskId}"를 시작합니다...\n`);
 
-		// task-jwt-provider.yaml 파일 읽기
 		const taskConfigPath = path.join('.task-actions', `task-${taskId}.yaml`);
 
 		// 파일이 존재하는지 확인

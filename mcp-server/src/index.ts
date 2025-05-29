@@ -26,80 +26,11 @@ const tools = new TaskActionsTools();
 
 // 프로젝트 초기화 도구
 server.addTool({
-	name: 'init_project',
+	name: 'init',
 	description: '새로운 task-actions 프로젝트를 초기화합니다',
 	parameters: z.object({}),
 	execute: async () => {
 		return await tools.initProject();
-	}
-});
-
-// Action 템플릿 생성 도구
-server.addTool({
-	name: 'add_action',
-	description: 'action 파일들을 생성합니다',
-	parameters: z.object({}),
-	execute: async () => {
-		return await tools.addAction();
-	}
-});
-
-// Workflow 템플릿 생성 도구
-server.addTool({
-	name: 'add_workflow',
-	description: 'workflow 파일들을 생성합니다',
-	parameters: z.object({}),
-	execute: async () => {
-		return await tools.addWorkflow();
-	}
-});
-
-// MCP 템플릿 생성 도구
-server.addTool({
-	name: 'add_mcp',
-	description: 'mcp 파일들을 생성합니다',
-	parameters: z.object({}),
-	execute: async () => {
-		return await tools.addMcp();
-	}
-});
-
-// Rule 템플릿 생성 도구
-server.addTool({
-	name: 'add_rule',
-	description: 'rule 파일들을 생성합니다',
-	parameters: z.object({}),
-	execute: async () => {
-		return await tools.addRule();
-	}
-});
-
-// Task 생성 도구
-server.addTool({
-	name: 'add_task',
-	description: '새로운 태스크 파일을 생성합니다',
-	parameters: z.object({
-		taskId: z.string().describe('태스크 ID'),
-		taskName: z.string().optional().describe('태스크 이름'),
-		description: z.string().optional().describe('태스크 설명')
-	}),
-	execute: async (args) => {
-		return await tools.addTask(args.taskId, args.taskName, args.description);
-	}
-});
-
-// 템플릿 목록 조회 도구
-server.addTool({
-	name: 'list_templates',
-	description: '사용 가능한 템플릿 목록을 조회합니다',
-	parameters: z.object({
-		type: z
-			.enum(['action', 'workflow', 'mcp', 'rule', 'task'])
-			.optional()
-			.describe('특정 타입만 조회')
-	}),
-	execute: async (args) => {
-		return await tools.listTemplates(args.type);
 	}
 });
 
@@ -112,28 +43,6 @@ server.addTool({
 	}),
 	execute: async (args) => {
 		return await tools.checkStatus(args.detailed);
-	}
-});
-
-// 프로젝트 검증 도구
-server.addTool({
-	name: 'validate_project',
-	description: '생성된 파일들의 유효성을 검사합니다',
-	parameters: z.object({}),
-	execute: async () => {
-		return await tools.validateProject();
-	}
-});
-
-// 프로젝트 정리 도구
-server.addTool({
-	name: 'clean_project',
-	description: '생성된 파일들을 정리합니다',
-	parameters: z.object({
-		force: z.boolean().optional().default(false).describe('확인 없이 강제 삭제')
-	}),
-	execute: async (args) => {
-		return await tools.cleanProject(args.force);
 	}
 });
 
