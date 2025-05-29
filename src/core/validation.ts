@@ -20,6 +20,8 @@ interface TaskConfig extends BaseYamlConfig {
 		workflow?: string;
 		rules?: string[];
 		mcps?: string[];
+		// 동적으로 추가되는 custom jobs들을 허용
+		[key: string]: string | string[] | undefined;
 	};
 }
 
@@ -32,6 +34,13 @@ interface WorkflowConfig extends BaseYamlConfig {
 		}>;
 	};
 }
+
+// 알려진 jobs 타입들과 그에 대응하는 검증 함수들
+const KNOWN_JOB_TYPES = {
+	workflow: 'validateWorkflowRecursively',
+	rules: 'validateRuleFile',
+	mcps: 'validateMcpFile'
+} as const;
 
 /**
  * YAML 파일의 필수 항목 검증
@@ -91,6 +100,39 @@ async function loadYamlFile(
 		}
 		return { config: null, errors };
 	}
+}
+
+/**
+ * 범용 YAML 파일 검증 (custom 파일 타입들을 위한 범용 함수)
+ */
+async function validateGenericYamlFile(
+	filePath: string,
+	visitedFiles: Set<string>,
+	fileType: string = 'Custom'
+): Promise<string[]> {
+	const errors: string[] = [];
+	const fullPath = path.join('.task-actions', filePath);
+
+	// 순환 참조 방지
+	if (visitedFiles.has(fullPath)) {
+		errors.push(`${filePath}: 순환 참조가 감지되었습니다.`);
+		return errors;
+	}
+	visitedFiles.add(fullPath);
+
+	console.log(`   📦 ${fileType} 검증 중: ${filePath}`);
+
+	const { config, errors: loadErrors } = await loadYamlFile(fullPath);
+	errors.push(...loadErrors);
+
+	if (!config) {
+		return errors;
+	}
+
+	// 필수 필드 검증
+	errors.push(...validateRequiredFields(config, filePath));
+
+	return errors;
 }
 
 /**
@@ -246,7 +288,28 @@ async function validateMcpFile(
 }
 
 /**
- * Task 파일 검증 및 참조되는 모든 파일들을 재귀적으로 검증
+ * 파일 경로 배열을 검증하는 범용 함수
+ */
+async function validateFileArray(
+	filePaths: string[],
+	visitedFiles: Set<string>,
+	validatorFunction: (
+		filePath: string,
+		visitedFiles: Set<string>
+	) => Promise<string[]>
+): Promise<string[]> {
+	const errors: string[] = [];
+
+	for (const filePath of filePaths) {
+		const fileErrors = await validatorFunction(filePath, visitedFiles);
+		errors.push(...fileErrors);
+	}
+
+	return errors;
+}
+
+/**
+ * Task 파일 검증 및 참조되는 모든 파일들을 재귀적으로 검증 (custom jobs 지원)
  */
 async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 	const errors: string[] = [];
@@ -272,28 +335,61 @@ async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 		return errors;
 	}
 
-	// Workflow 검증
-	if (taskConfig.jobs.workflow) {
-		const workflowErrors = await validateWorkflowRecursively(
-			taskConfig.jobs.workflow,
-			visitedFiles
-		);
-		errors.push(...workflowErrors);
-	}
-
-	// Rules 검증
-	if (taskConfig.jobs.rules && Array.isArray(taskConfig.jobs.rules)) {
-		for (const rulePath of taskConfig.jobs.rules) {
-			const ruleErrors = await validateRuleFile(rulePath, visitedFiles);
-			errors.push(...ruleErrors);
+	// 모든 jobs 항목을 검증 (알려진 것과 custom 모두)
+	for (const [jobKey, jobValue] of Object.entries(taskConfig.jobs)) {
+		if (jobValue === undefined || jobValue === null) {
+			continue;
 		}
-	}
 
-	// MCPs 검증
-	if (taskConfig.jobs.mcps && Array.isArray(taskConfig.jobs.mcps)) {
-		for (const mcpPath of taskConfig.jobs.mcps) {
-			const mcpErrors = await validateMcpFile(mcpPath, visitedFiles);
-			errors.push(...mcpErrors);
+		// 알려진 job 타입들은 기존 로직으로 처리
+		if (jobKey in KNOWN_JOB_TYPES) {
+			if (jobKey === 'workflow' && typeof jobValue === 'string') {
+				const workflowErrors = await validateWorkflowRecursively(
+					jobValue,
+					visitedFiles
+				);
+				errors.push(...workflowErrors);
+			} else if (jobKey === 'rules' && Array.isArray(jobValue)) {
+				const ruleErrors = await validateFileArray(
+					jobValue,
+					visitedFiles,
+					validateRuleFile
+				);
+				errors.push(...ruleErrors);
+			} else if (jobKey === 'mcps' && Array.isArray(jobValue)) {
+				const mcpErrors = await validateFileArray(
+					jobValue,
+					visitedFiles,
+					validateMcpFile
+				);
+				errors.push(...mcpErrors);
+			}
+		} else {
+			// Custom job 타입들은 범용 검증 함수로 처리
+			console.log(`   🔍 Custom job 타입 발견: ${jobKey}`);
+
+			if (typeof jobValue === 'string') {
+				// 단일 파일 참조
+				const customErrors = await validateGenericYamlFile(
+					jobValue,
+					visitedFiles,
+					`Custom-${jobKey}`
+				);
+				errors.push(...customErrors);
+			} else if (Array.isArray(jobValue)) {
+				// 파일 배열 참조
+				const customErrors = await validateFileArray(
+					jobValue,
+					visitedFiles,
+					(filePath, visited) =>
+						validateGenericYamlFile(filePath, visited, `Custom-${jobKey}`)
+				);
+				errors.push(...customErrors);
+			} else {
+				errors.push(
+					`${taskFilePath}: jobs.${jobKey}는 문자열 또는 문자열 배열이어야 합니다.`
+				);
+			}
 		}
 	}
 
