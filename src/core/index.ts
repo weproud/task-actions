@@ -35,7 +35,7 @@ export type {
 
 export type { ListTemplatesOptions } from './templates';
 
-export { startTask } from './task';
+export { startTask, completeTask } from './task';
 
 // 새로운 유틸리티 모듈들
 export { ErrorHandler } from './error-handler';

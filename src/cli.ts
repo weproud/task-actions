@@ -11,7 +11,8 @@ import {
 	cleanProject,
 	printNextSteps,
 	listTemplates,
-	startTask
+	startTask,
+	completeTask
 } from './core';
 import { MESSAGES } from './core/constants';
 import { ErrorHandler } from './core/error-handler';
@@ -166,6 +167,24 @@ startCmd
 			await startTask(taskId, options);
 		} catch (error) {
 			ErrorHandler.handleCliError('태스크 시작', error, debugMode);
+		}
+	});
+
+// done 명령어
+program
+	.command('done')
+	.description('태스크를 완료로 표시하고 Slack 알림을 전송합니다')
+	.argument('<task-id>', '완료할 태스크 ID')
+	.option('--skip-slack', 'Slack 알림을 건너뜁니다')
+	.option('--force', '이미 완료된 태스크도 강제로 다시 완료 처리합니다')
+	.action(async (taskId, options) => {
+		try {
+			await completeTask(taskId, {
+				skipSlack: options.skipSlack,
+				force: options.force
+			});
+		} catch (error) {
+			ErrorHandler.handleCliError('태스크 완료', error, debugMode);
 		}
 	});
 

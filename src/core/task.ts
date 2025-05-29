@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { notifyTaskCompletion } from './utils';
 
 const execAsync = promisify(exec);
 
@@ -279,4 +280,147 @@ ${prompts.join('\n\n---\n\n')}
 **다음 단계**: 개발 환경 설정 및 기본 구조 생성
 
 Good luck! 🚀`;
+}
+
+/**
+ * 태스크 완료 인터페이스
+ */
+interface CompleteTaskOptions {
+	skipSlack?: boolean;
+	force?: boolean;
+}
+
+/**
+ * 태스크를 완료로 표시하고 Slack 알림을 전송합니다
+ */
+export async function completeTask(
+	taskId: string,
+	options: CompleteTaskOptions = {}
+): Promise<void> {
+	try {
+		console.log(`✅ Task "${taskId}"를 완료 처리합니다...\n`);
+
+		const taskConfigPath = path.join('.task-actions', `task-${taskId}.yaml`);
+
+		// 파일이 존재하는지 확인
+		try {
+			await fs.access(taskConfigPath);
+		} catch (error) {
+			console.error(`❌ Task 파일을 찾을 수 없습니다: ${taskConfigPath}`);
+			return;
+		}
+
+		// 태스크 설정 파일 읽기
+		const taskConfigContent = await fs.readFile(taskConfigPath, 'utf-8');
+		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
+
+		// 이미 완료된 태스크인지 확인
+		if (taskConfig.status === 'done' && !options.force) {
+			console.log(`ℹ️  Task "${taskConfig.name}"는 이미 완료되었습니다.`);
+			console.log(`   강제로 다시 완료 처리하려면 --force 옵션을 사용하세요.`);
+			return;
+		}
+
+		console.log(`📋 Task: ${taskConfig.name}`);
+		console.log(`📝 이전 상태: ${taskConfig.status}`);
+
+		// 태스크 상태를 'done'으로 변경
+		taskConfig.status = 'done';
+
+		// 수정된 설정을 파일에 저장
+		const updatedYamlContent = yaml.dump(taskConfig, {
+			indent: 2,
+			flowLevel: -1
+		});
+
+		await fs.writeFile(taskConfigPath, updatedYamlContent, 'utf-8');
+		console.log(`✅ 태스크 상태가 'done'으로 변경되었습니다.`);
+
+		// tasks.yaml 파일도 업데이트
+		await updateTasksStatus(taskId, 'done');
+
+		// 프로젝트 정보 가져오기
+		let projectName = 'Unknown Project';
+		try {
+			const varsPath = path.join('.task-actions', 'vars.yaml');
+			const varsContent = await fs.readFile(varsPath, 'utf-8');
+			const vars = yaml.load(varsContent) as any;
+			projectName = vars.project?.name || projectName;
+		} catch (error) {
+			console.warn('⚠️  프로젝트 정보를 가져올 수 없습니다.');
+		}
+
+		// Slack 알림 전송 (옵션에 따라)
+		if (!options.skipSlack) {
+			console.log('\n📤 Slack 알림을 전송합니다...');
+
+			const slackResult = await notifyTaskCompletion(
+				taskConfig.id,
+				taskConfig.name,
+				projectName
+			);
+
+			if (slackResult.success) {
+				console.log('✅ Slack 알림이 성공적으로 전송되었습니다.');
+			} else {
+				console.warn(`⚠️  Slack 알림 전송 실패: ${slackResult.error}`);
+				console.warn('   태스크는 정상적으로 완료되었습니다.');
+			}
+		} else {
+			console.log('\n📤 Slack 알림이 건너뛰어졌습니다.');
+		}
+
+		console.log(`\n🎉 Task "${taskConfig.name}"이 성공적으로 완료되었습니다!`);
+	} catch (error) {
+		console.error('❌ Task 완료 처리 중 오류가 발생했습니다:', error);
+		throw error;
+	}
+}
+
+/**
+ * tasks.yaml 파일에서 태스크 상태를 업데이트합니다
+ */
+async function updateTasksStatus(
+	taskId: string,
+	status: string
+): Promise<void> {
+	try {
+		const tasksPath = path.join('.task-actions', 'tasks.yaml');
+
+		// tasks.yaml 파일이 있는지 확인
+		try {
+			await fs.access(tasksPath);
+		} catch (error) {
+			console.warn('⚠️  tasks.yaml 파일을 찾을 수 없습니다.');
+			return;
+		}
+
+		const tasksContent = await fs.readFile(tasksPath, 'utf-8');
+		const tasksConfig = yaml.load(tasksContent) as any;
+
+		// tasks 배열에서 해당 태스크 찾아서 상태 업데이트
+		if (tasksConfig.tasks && Array.isArray(tasksConfig.tasks)) {
+			const taskIndex = tasksConfig.tasks.findIndex(
+				(task: any) => task.id === taskId
+			);
+
+			if (taskIndex !== -1) {
+				tasksConfig.tasks[taskIndex].status = status;
+
+				const updatedTasksContent = yaml.dump(tasksConfig, {
+					indent: 2,
+					flowLevel: -1
+				});
+
+				await fs.writeFile(tasksPath, updatedTasksContent, 'utf-8');
+				console.log('✅ tasks.yaml 파일이 업데이트되었습니다.');
+			} else {
+				console.warn(
+					`⚠️  tasks.yaml에서 태스크 ID "${taskId}"를 찾을 수 없습니다.`
+				);
+			}
+		}
+	} catch (error) {
+		console.warn('⚠️  tasks.yaml 업데이트 중 오류 발생:', error);
+	}
 }

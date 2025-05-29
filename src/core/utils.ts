@@ -94,3 +94,153 @@ export function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
 		return groups;
 	}, {} as Record<string, T[]>);
 }
+
+/**
+ * Slack 메시지 전송 인터페이스
+ */
+export interface SlackMessage {
+	text: string;
+	channel?: string;
+	username?: string;
+	icon_emoji?: string;
+	icon_url?: string;
+	attachments?: Array<{
+		color?: string;
+		title?: string;
+		text?: string;
+		fields?: Array<{
+			title: string;
+			value: string;
+			short?: boolean;
+		}>;
+	}>;
+}
+
+/**
+ * Slack Hook URL을 이용해서 메시지 전송
+ */
+export async function sendSlackMessage(
+	message: SlackMessage | string,
+	hookUrl?: string
+): Promise<{ success: boolean; error?: string }> {
+	try {
+		// Hook URL 가져오기 (파라미터 또는 환경변수에서)
+		const slackHookUrl = hookUrl || process.env.SLACK_HOOK_URL;
+
+		if (!slackHookUrl) {
+			return {
+				success: false,
+				error:
+					'SLACK_HOOK_URL 환경변수가 설정되지 않았습니다. MCP 서버 설정에서 env.SLACK_HOOK_URL을 추가해주세요.'
+			};
+		}
+
+		// 메시지 형식 맞추기
+		const payload: SlackMessage =
+			typeof message === 'string' ? { text: message } : message;
+
+		// HTTP 요청 전송
+		const response = await fetch(slackHookUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			return {
+				success: false,
+				error: `Slack API 오류 (${response.status}): ${errorText}`
+			};
+		}
+
+		return { success: true };
+	} catch (error) {
+		return {
+			success: false,
+			error: `네트워크 오류: ${
+				error instanceof Error ? error.message : String(error)
+			}`
+		};
+	}
+}
+
+/**
+ * 태스크 완료 알림을 Slack으로 전송
+ */
+export async function notifyTaskCompletion(
+	taskId: string,
+	taskName: string,
+	projectName?: string
+): Promise<{ success: boolean; error?: string }> {
+	const message: SlackMessage = {
+		text: `✅ 태스크 완료!`,
+		username: 'Task Actions Bot',
+		icon_emoji: ':white_check_mark:',
+		attachments: [
+			{
+				color: 'good',
+				title: '태스크 정보',
+				fields: [
+					{
+						title: '태스크 ID',
+						value: taskId,
+						short: true
+					},
+					{
+						title: '태스크 이름',
+						value: taskName,
+						short: true
+					},
+					...(projectName
+						? [
+								{
+									title: '프로젝트',
+									value: projectName,
+									short: true
+								}
+						  ]
+						: [])
+				]
+			}
+		]
+	};
+
+	return await sendSlackMessage(message);
+}
+
+/**
+ * 프로젝트 초기화 알림을 Slack으로 전송
+ */
+export async function notifyProjectInit(
+	projectName: string,
+	author: string
+): Promise<{ success: boolean; error?: string }> {
+	const message: SlackMessage = {
+		text: `🚀 새 프로젝트가 초기화되었습니다!`,
+		username: 'Task Actions Bot',
+		icon_emoji: ':rocket:',
+		attachments: [
+			{
+				color: '#36a64f',
+				title: '프로젝트 정보',
+				fields: [
+					{
+						title: '프로젝트 이름',
+						value: projectName,
+						short: true
+					},
+					{
+						title: '작성자',
+						value: author,
+						short: true
+					}
+				]
+			}
+		]
+	};
+
+	return await sendSlackMessage(message);
+}
