@@ -64,10 +64,48 @@ export async function generateProjectFiles(
 }
 
 /**
+ * 기존 .task-actions 디렉토리 백업
+ */
+async function backupExistingTaskActionsDir(currentDir: string): Promise<void> {
+	const taskActionsPath = path.join(currentDir, TASK_ACTIONS_DIR);
+
+	if (!FileSystemUtils.fileExists(taskActionsPath)) {
+		return; // 백업할 디렉토리가 없음
+	}
+
+	// 현재 시간을 yyyyMMddHHmm 형식으로 포맷
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, '0');
+	const day = String(now.getDate()).padStart(2, '0');
+	const hour = String(now.getHours()).padStart(2, '0');
+	const minute = String(now.getMinutes()).padStart(2, '0');
+	const timestamp = `${year}${month}${day}${hour}${minute}`;
+
+	const backupDirName = `${TASK_ACTIONS_DIR}-${timestamp}`;
+	const backupPath = path.join(currentDir, backupDirName);
+
+	try {
+		// 기존 디렉토리를 백업 디렉토리로 이름 변경
+		fs.renameSync(taskActionsPath, backupPath);
+		console.log(
+			`📦 기존 ${TASK_ACTIONS_DIR} 디렉토리를 ${backupDirName}으로 백업했습니다.`
+		);
+	} catch (error) {
+		console.warn(`⚠️  백업 생성 중 오류가 발생했습니다: ${error}`);
+		throw new Error(`기존 ${TASK_ACTIONS_DIR} 디렉토리 백업에 실패했습니다.`);
+	}
+}
+
+/**
  * 프로젝트 초기화
  */
 export async function initProject(): Promise<void> {
 	const currentDir = process.cwd();
+
+	// 기존 .task-actions 디렉토리가 있으면 백업
+	await backupExistingTaskActionsDir(currentDir);
+
 	const variables = await collectDefaultVariables();
 	await generateProjectFiles(currentDir, variables);
 }
