@@ -17,35 +17,49 @@ export class TemplateProcessor {
 	 * 템플릿 변수를 치환하는 헬퍼 함수
 	 */
 	static replaceTemplateVariables(
-		content: any,
+		content: Record<string, unknown>,
 		variables: TemplateVariables
-	): any {
-		const contentStr = JSON.stringify(content);
-		let result = contentStr;
+	): Record<string, unknown> {
+		const jsonString = JSON.stringify(content);
+		const replacedString = jsonString.replace(
+			/\{\{(\w+)\}\}/g,
+			(match, key) => {
+				const value = variables[key];
+				return value !== undefined ? String(value) : match;
+			}
+		);
 
-		// 변수 치환
-		for (const [key, value] of Object.entries(variables)) {
-			const regex = new RegExp(`{{${key}}}`, 'g');
-			result = result.replace(regex, String(value));
+		try {
+			return JSON.parse(replacedString);
+		} catch {
+			return content;
 		}
-
-		return JSON.parse(result);
 	}
 
 	/**
-	 * TypeScript 템플릿을 YAML 파일로 생성하는 헬퍼 함수
+	 * YAML 템플릿에서 파일 생성
 	 */
 	static generateYamlFromTemplate(
-		template: YamlTemplate,
+		template: YamlTemplate | Record<string, unknown> | unknown,
 		outputPath: string,
 		variables: TemplateVariables,
 		overwrite: boolean = false
 	): FileGenerationResult {
+		let content: Record<string, unknown>;
+
+		// YamlTemplate 타입인지 확인
+		if (template && typeof template === 'object' && 'content' in template) {
+			const yamlTemplate = template as YamlTemplate;
+			content = yamlTemplate.content as Record<string, unknown>;
+		} else if (template && typeof template === 'object') {
+			content = template as Record<string, unknown>;
+		} else {
+			// 기본 빈 객체
+			content = {};
+		}
+
 		// 템플릿 변수 치환
-		const processedContent = this.replaceTemplateVariables(
-			template.content,
-			variables
-		);
+		const processedContent = this.replaceTemplateVariables(content, variables);
 
 		// YAML 파일로 저장
 		return FileSystemUtils.saveYamlFile(
@@ -225,13 +239,14 @@ export class TemplateProcessor {
 	}
 
 	/**
-	 * 변수 검증
+	 * 변수 검증 (타입 안전성 강화)
 	 */
 	static validateVariables(variables: TemplateVariables): boolean {
 		const required = ['projectName', 'projectDescription', 'author', 'version'];
 
 		for (const field of required) {
-			if (!variables[field] || variables[field].trim() === '') {
+			const value = variables[field];
+			if (!value || (typeof value === 'string' && value.trim() === '')) {
 				console.warn(`경고: 필수 변수 '${field}'가 누락되었습니다.`);
 				return false;
 			}

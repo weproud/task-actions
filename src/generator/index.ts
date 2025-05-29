@@ -190,7 +190,7 @@ export class YamlGenerator {
 
 				// 템플릿에서 필요한 변수 추출 (간단한 구현)
 				const requiredVariables = this.extractVariablesFromTemplate(
-					templateConfig.template
+					templateConfig.template as any // 타입 호환성을 위한 캐스팅
 				);
 
 				templates.push({

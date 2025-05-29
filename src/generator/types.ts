@@ -60,7 +60,7 @@ export interface VarsConfig {
 	slack_hook_url?: string;
 	discord_hook_url?: string;
 	github_token?: string;
-	[key: string]: any;
+	[key: string]: string | number | boolean | undefined;
 }
 
 // 템플릿 변수 타입 정의
@@ -80,8 +80,19 @@ export interface TemplateVariables {
 	discordHookUrl?: string;
 	githubToken?: string;
 
-	// 커스텀 설정
-	[key: string]: any;
+	// 태스크 관련 (옵셔널)
+	taskId?: string;
+	taskName?: string;
+	taskDescription?: string;
+	priority?: string;
+	estimatedHours?: string;
+
+	// 기타 설정
+	testEnvironment?: string;
+	complexityLevel?: string;
+
+	// 커스텀 설정 (타입 제한)
+	[key: string]: string | number | boolean | undefined;
 }
 
 // 템플릿 타입
@@ -112,9 +123,19 @@ export interface TemplateMetadata {
 	requiredVariables: string[];
 }
 
-// 템플릿 설정 인터페이스
+// YAML 설정 유니온 타입
+export type YamlConfigTypes =
+	| ActionConfig
+	| WorkflowConfig
+	| McpConfig
+	| RuleConfig
+	| TaskConfig
+	| TasksConfig
+	| VarsConfig;
+
+// 템플릿 설정 인터페이스 - YamlTemplate과 호환성 유지
 export interface TemplateConfig {
-	template: any;
+	template: YamlConfigTypes | Record<string, unknown>;
 	filename: string;
 	subdirectory?: string;
 }
@@ -149,4 +170,32 @@ export interface GenerationStats {
 	skippedFiles: number;
 	failedFiles: number;
 	results: FileGenerationResult[];
+}
+
+// 성능 메트릭스 인터페이스 추가
+export interface PerformanceMetrics {
+	totalDuration: number;
+	averageFileTime: number;
+	slowestFile?: {
+		path: string;
+		duration: number;
+	};
+	fastestFile?: {
+		path: string;
+		duration: number;
+	};
+}
+
+// 에러 정보 인터페이스
+export interface ErrorInfo {
+	code: string;
+	message: string;
+	details?: Record<string, unknown>;
+}
+
+// 생성 옵션 인터페이스
+export interface GenerateTaskOptions {
+	description?: string;
+	priority?: 'low' | 'medium' | 'high';
+	estimatedHours?: string;
 }

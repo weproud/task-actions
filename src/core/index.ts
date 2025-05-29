@@ -36,3 +36,15 @@ export type {
 export type { ListTemplatesOptions } from './templates';
 
 export { startTask } from './task';
+
+// 새로운 유틸리티 모듈들
+export { ErrorHandler } from './error-handler';
+export { YamlParser } from './yaml-parser';
+export {
+	PROJECT_CONSTANTS,
+	MESSAGES,
+	DEFAULT_URLS,
+	FILE_CONSTANTS,
+	TIME_CONSTANTS,
+	YAML_PATTERNS
+} from './constants';

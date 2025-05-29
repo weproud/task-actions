@@ -13,6 +13,8 @@ import {
 	listTemplates,
 	startTask
 } from './core';
+import { MESSAGES } from './core/constants';
+import { ErrorHandler } from './core/error-handler';
 
 const program = new Command();
 
@@ -37,18 +39,14 @@ program
 	.command('init')
 	.description('새로운 task-actions 프로젝트를 초기화합니다')
 	.action(async () => {
-		console.log('🚀 Task Actions 프로젝트를 초기화합니다...\n');
+		console.log(MESSAGES.INIT.STARTING);
 
 		try {
 			await initProject();
-			console.log('✅ 프로젝트 초기화가 완료되었습니다!');
+			console.log(MESSAGES.INIT.SUCCESS);
 			printNextSteps();
 		} catch (error) {
-			console.error('❌ 초기화 중 오류가 발생했습니다:', error);
-			if (debugMode) {
-				console.error('🐛 스택 트레이스:', error);
-			}
-			process.exit(1);
+			ErrorHandler.handleCliError('초기화', error, debugMode);
 		}
 	});
 
@@ -68,11 +66,7 @@ templateTypes.forEach((type) => {
 			try {
 				await generateByType(type);
 			} catch (error) {
-				console.error(`❌ ${type} 생성 중 오류가 발생했습니다:`, error);
-				if (debugMode) {
-					console.error('🐛 스택 트레이스:', error);
-				}
-				process.exit(1);
+				ErrorHandler.handleCliError(`${type} 생성`, error, debugMode);
 			}
 		});
 });
@@ -84,15 +78,22 @@ addCmd
 	.argument('<task-id>', '태스크 ID')
 	.argument('[task-name]', '태스크 이름')
 	.option('--description <desc>', '태스크 설명')
+	.option(
+		'--priority <priority>',
+		'태스크 우선순위 (low, medium, high)',
+		'medium'
+	)
+	.option('--hours <hours>', '예상 작업 시간', '4')
 	.action(async (taskId, taskName, options) => {
 		try {
-			await generateTask(taskId, taskName, options);
+			const taskOptions = {
+				description: options.description,
+				priority: options.priority as 'low' | 'medium' | 'high',
+				estimatedHours: options.hours
+			};
+			await generateTask(taskId, taskName, taskOptions);
 		} catch (error) {
-			console.error('❌ 태스크 생성 중 오류가 발생했습니다:', error);
-			if (debugMode) {
-				console.error('🐛 스택 트레이스:', error);
-			}
-			process.exit(1);
+			ErrorHandler.handleCliError('태스크 생성', error, debugMode);
 		}
 	});
 
@@ -106,11 +107,7 @@ program
 		try {
 			await listTemplates(options);
 		} catch (error) {
-			console.error('❌ 템플릿 목록 조회 중 오류가 발생했습니다:', error);
-			if (debugMode) {
-				console.error('🐛 스택 트레이스:', error);
-			}
-			process.exit(1);
+			ErrorHandler.handleCliError('템플릿 목록 조회', error, debugMode);
 		}
 	});
 
@@ -123,11 +120,7 @@ program
 		try {
 			await checkProjectStatus(options);
 		} catch (error) {
-			console.error('❌ 상태 확인 중 오류가 발생했습니다:', error);
-			if (debugMode) {
-				console.error('🐛 스택 트레이스:', error);
-			}
-			process.exit(1);
+			ErrorHandler.handleCliError('상태 확인', error, debugMode);
 		}
 	});
 
@@ -139,11 +132,7 @@ program
 		try {
 			await validateProject();
 		} catch (error) {
-			console.error('❌ 검증 중 오류가 발생했습니다:', error);
-			if (debugMode) {
-				console.error('🐛 스택 트레이스:', error);
-			}
-			process.exit(1);
+			ErrorHandler.handleCliError('검증', error, debugMode);
 		}
 	});
 
@@ -156,11 +145,7 @@ program
 		try {
 			await cleanProject(options);
 		} catch (error) {
-			console.error('❌ 정리 중 오류가 발생했습니다:', error);
-			if (debugMode) {
-				console.error('🐛 스택 트레이스:', error);
-			}
-			process.exit(1);
+			ErrorHandler.handleCliError('정리', error, debugMode);
 		}
 	});
 
@@ -180,11 +165,7 @@ startCmd
 		try {
 			await startTask(taskId, options);
 		} catch (error) {
-			console.error('❌ 태스크 시작 중 오류가 발생했습니다:', error);
-			if (debugMode) {
-				console.error('🐛 스택 트레이스:', error);
-			}
-			process.exit(1);
+			ErrorHandler.handleCliError('태스크 시작', error, debugMode);
 		}
 	});
 

@@ -117,7 +117,7 @@ export class TemplateScanner {
 			const yamlFilename = filename.replace('.js', '.yaml');
 
 			return {
-				template,
+				template: template as any, // 타입 호환성을 위한 임시 캐스팅
 				filename: yamlFilename
 			};
 		} catch (error) {
