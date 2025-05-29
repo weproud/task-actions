@@ -13,7 +13,6 @@ import { TemplateProcessor } from './template-processor';
 import { PerformanceUtils } from './performance-utils';
 import {
 	TASK_ACTIONS_DIR,
-	TEMPLATE_GROUPS,
 	TASK_TEMPLATE,
 	getTemplateGroup,
 	getAllTemplateGroups,
@@ -48,8 +47,9 @@ export class YamlGenerator {
 
 			// 모든 템플릿 그룹 생성
 			PerformanceUtils.startTimer('generateTemplates');
+			const templateGroups = await getAllTemplateGroups();
 			const stats = TemplateProcessor.generateMultipleGroups(
-				getAllTemplateGroups(),
+				templateGroups,
 				this.options.outputDir,
 				this.options.variables,
 				this.options.overwrite
@@ -82,7 +82,7 @@ export class YamlGenerator {
 
 		try {
 			// 특정 타입의 템플릿 그룹 찾기
-			const templateGroup = getTemplateGroup(type);
+			const templateGroup = await getTemplateGroup(type);
 
 			if (!templateGroup) {
 				throw new Error(`Unknown template type: ${type}`);
@@ -173,13 +173,14 @@ export class YamlGenerator {
 	/**
 	 * 사용 가능한 템플릿 목록 조회
 	 */
-	getAvailableTemplates(): TemplateMetadata[] {
+	async getAvailableTemplates(): Promise<TemplateMetadata[]> {
 		PerformanceUtils.startTimer('getAvailableTemplates');
 
 		const templates: TemplateMetadata[] = [];
 
 		// 각 템플릿 그룹에서 메타데이터 추출
-		for (const group of getAllTemplateGroups()) {
+		const templateGroups = await getAllTemplateGroups();
+		for (const group of templateGroups) {
 			for (const templateConfig of group.templates) {
 				const outputPath = TemplateProcessor.buildOutputPath(
 					this.options.outputDir,
@@ -305,33 +306,34 @@ export class YamlGenerator {
 	/**
 	 * 생성 통계 조회
 	 */
-	getGenerationStats(): GenerationStats {
+	async getGenerationStats(): Promise<GenerationStats> {
 		PerformanceUtils.startTimer('getGenerationStats');
 
-		// 모든 예상 파일에 대한 상태 확인
-		const allResults = [];
+		try {
+			const templateGroups = await getAllTemplateGroups();
+			let totalTemplates = 0;
+			let totalGroups = templateGroups.length;
 
-		for (const group of getAllTemplateGroups()) {
-			for (const templateConfig of group.templates) {
-				const outputPath = TemplateProcessor.buildOutputPath(
-					this.options.outputDir,
-					group.subdirectory,
-					templateConfig.filename
-				);
-
-				const exists = FileSystemUtils.fileExists(outputPath);
-				allResults.push({
-					path: outputPath,
-					success: exists,
-					skipped: false
-				});
+			// 각 그룹의 템플릿 수 계산
+			for (const group of templateGroups) {
+				totalTemplates += group.templates.length;
 			}
+
+			const stats: GenerationStats = {
+				totalFiles: totalTemplates,
+				createdFiles: 0, // 실제 생성 후 업데이트
+				failedFiles: 0,
+				skippedFiles: 0,
+				results: []
+			};
+
+			PerformanceUtils.endTimer('getGenerationStats');
+
+			return stats;
+		} catch (error) {
+			PerformanceUtils.endTimer('getGenerationStats');
+			throw error;
 		}
-
-		const stats = TemplateProcessor.calculateStats(allResults);
-		PerformanceUtils.endTimer('getGenerationStats');
-
-		return stats;
 	}
 
 	/**

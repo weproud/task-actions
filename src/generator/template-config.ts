@@ -1,11 +1,7 @@
 import { TemplateGroup, DirectoryConfig } from './types';
+import { TemplateScanner } from './template-scanner';
 
-// 템플릿 imports
-import * as actionsTemplates from '../templates/actions';
-import * as workflowsTemplates from '../templates/workflows';
-import * as mcpsTemplates from '../templates/mcps';
-import * as rulesTemplates from '../templates/rules';
-import * as baseTemplates from '../templates/base';
+// 템플릿 imports (tasks 템플릿은 특별 처리를 위해 유지)
 import * as tasksTemplates from '../templates/tasks';
 
 // task-actions 디렉토리 상수
@@ -20,104 +16,11 @@ export const DIRECTORY_CONFIG: DirectoryConfig[] = [
 	{ name: 'rules', path: `${TASK_ACTIONS_DIR}/rules`, required: true }
 ];
 
-// 템플릿 그룹 설정
-export const TEMPLATE_GROUPS: TemplateGroup[] = [
-	{
-		type: 'action',
-		displayName: '액션',
-		subdirectory: 'actions',
-		templates: [
-			{
-				template: actionsTemplates.CREATE_BRANCH_ACTION_TEMPLATE,
-				filename: 'create-branch.yaml'
-			},
-			{
-				template: actionsTemplates.DEVELOPMENT_ACTION_TEMPLATE,
-				filename: 'development.yaml'
-			},
-			{
-				template: actionsTemplates.GIT_COMMIT_ACTION_TEMPLATE,
-				filename: 'git-commit.yaml'
-			},
-			{
-				template: actionsTemplates.GIT_PUSH_ACTION_TEMPLATE,
-				filename: 'git-push.yaml'
-			},
-			{
-				template: actionsTemplates.CREATE_PULL_REQUEST_ACTION_TEMPLATE,
-				filename: 'create-pull-request.yaml'
-			},
-			{
-				template: actionsTemplates.SEND_MESSAGE_SLACK_ACTION_TEMPLATE,
-				filename: 'send-message-slack.yaml'
-			},
-			{
-				template: actionsTemplates.TASK_DONE_ACTION_TEMPLATE,
-				filename: 'task-done.yaml'
-			},
-			{
-				template: actionsTemplates.TEST_ACTION_TEMPLATE,
-				filename: 'test.yaml'
-			}
-		]
-	},
-	{
-		type: 'workflow',
-		displayName: '워크플로우',
-		subdirectory: 'workflows',
-		templates: [
-			{
-				template: workflowsTemplates.FEATURE_DEVELOPMENT_WORKFLOW_TEMPLATE,
-				filename: 'feature-development.yaml'
-			}
-		]
-	},
-	{
-		type: 'mcp',
-		displayName: 'MCP',
-		subdirectory: 'mcps',
-		templates: [
-			{
-				template: mcpsTemplates.CONTEXT7_MCP_TEMPLATE,
-				filename: 'context7.yaml'
-			},
-			{
-				template: mcpsTemplates.PLAYWRIGHT_MCP_TEMPLATE,
-				filename: 'playwright.yaml'
-			},
-			{
-				template: mcpsTemplates.SEQUENTIAL_THINKING_MCP_TEMPLATE,
-				filename: 'sequential-thinking.yaml'
-			}
-		]
-	},
-	{
-		type: 'rule',
-		displayName: '규칙',
-		subdirectory: 'rules',
-		templates: [
-			{
-				template: rulesTemplates.DEVELOPMENT_RULE_TEMPLATE,
-				filename: 'development-rule.yaml'
-			}
-		]
-	},
-	{
-		type: 'vars',
-		displayName: '기본 설정',
-		subdirectory: '',
-		templates: [
-			{
-				template: baseTemplates.TASKS_BASE_TEMPLATE,
-				filename: 'tasks.yaml'
-			},
-			{
-				template: baseTemplates.VARS_BASE_TEMPLATE,
-				filename: 'vars.yaml'
-			}
-		]
-	}
-];
+// 템플릿 스캐너 인스턴스
+const templateScanner = new TemplateScanner();
+
+// 동적으로 생성된 템플릿 그룹들 (캐시)
+let cachedTemplateGroups: TemplateGroup[] | null = null;
 
 // 태스크 템플릿 (특별 처리)
 export const TASK_TEMPLATE = tasksTemplates.TASK_TEMPLATE;
@@ -125,15 +28,50 @@ export const TASK_TEMPLATE = tasksTemplates.TASK_TEMPLATE;
 /**
  * 템플릿 타입으로 템플릿 그룹 찾기
  */
-export function getTemplateGroup(type: string): TemplateGroup | undefined {
-	return TEMPLATE_GROUPS.find((group) => group.type === type);
+export async function getTemplateGroup(
+	type: string
+): Promise<TemplateGroup | undefined> {
+	const groups = await getAllTemplateGroups();
+	return groups.find((group) => group.type === type);
 }
 
 /**
- * 모든 템플릿 그룹 가져오기
+ * 모든 템플릿 그룹 가져오기 (동적 스캔)
  */
-export function getAllTemplateGroups(): TemplateGroup[] {
-	return TEMPLATE_GROUPS;
+export async function getAllTemplateGroups(): Promise<TemplateGroup[]> {
+	// 캐시된 결과가 있으면 반환
+	if (cachedTemplateGroups) {
+		return cachedTemplateGroups;
+	}
+
+	try {
+		// 동적 스캔으로 템플릿 그룹 생성
+		cachedTemplateGroups = await templateScanner.scanAllTemplateGroups();
+
+		console.log(
+			`📁 ${cachedTemplateGroups.length}개의 템플릿 그룹을 자동 스캔했습니다:`
+		);
+		cachedTemplateGroups.forEach((group) => {
+			console.log(
+				`   - ${group.displayName}: ${group.templates.length}개 템플릿`
+			);
+		});
+
+		return cachedTemplateGroups;
+	} catch (error) {
+		console.error('템플릿 스캔 중 오류가 발생했습니다:', error);
+
+		// 에러 발생 시 빈 배열 반환
+		cachedTemplateGroups = [];
+		return cachedTemplateGroups;
+	}
+}
+
+/**
+ * 템플릿 그룹 캐시 초기화 (개발 중 사용)
+ */
+export function clearTemplateGroupsCache(): void {
+	cachedTemplateGroups = null;
 }
 
 /**

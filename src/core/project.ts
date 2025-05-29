@@ -255,7 +255,7 @@ export async function checkProjectStatus(
 		overwrite: false
 	});
 
-	const stats = generator.getGenerationStats();
+	const stats = await generator.getGenerationStats();
 	TemplateProcessor.printStats(stats);
 
 	if (options?.detailed) {

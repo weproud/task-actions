@@ -16,7 +16,6 @@ export {
 // 템플릿 설정 (TASK_TEMPLATE 제외하고 export)
 export {
 	TASK_ACTIONS_DIR,
-	TEMPLATE_GROUPS,
 	getTemplateGroup,
 	getAllTemplateGroups,
 	getDirectoryConfig,
