@@ -18,7 +18,6 @@ import {
 } from '../../src/core/index.js';
 
 import type {
-	CleanOptions,
 	ListTemplatesOptions,
 	StatusOptions
 } from '../../src/core/index.js';
@@ -107,15 +106,10 @@ export class TaskActionsTools {
 		}
 	}
 
-	async addTask(
-		taskId: string,
-		taskName?: string,
-		description?: string
-	): Promise<string> {
+	async addTask(taskId: string, taskName?: string): Promise<string> {
 		try {
 			await this.executeInProjectRoot(async () => {
-				const options = description ? { description } : undefined;
-				await generateTask(taskId, taskName, options);
+				await generateTask(taskId, taskName);
 			});
 			return `✅ 태스크 "${taskId}"가 성공적으로 생성되었습니다!`;
 		} catch (error) {
@@ -170,11 +164,10 @@ export class TaskActionsTools {
 		}
 	}
 
-	async cleanProject(force?: boolean): Promise<string> {
+	async cleanProject(): Promise<string> {
 		try {
 			await this.executeInProjectRoot(async () => {
-				const options: CleanOptions = { force: force ?? false };
-				await cleanProject(options);
+				await cleanProject();
 			});
 			return '✅ 프로젝트 정리가 완료되었습니다!';
 		} catch (error) {
@@ -182,18 +175,10 @@ export class TaskActionsTools {
 		}
 	}
 
-	async startTask(
-		taskId: string,
-		output?: string,
-		clipboard?: boolean
-	): Promise<string> {
+	async startTask(taskId: string): Promise<string> {
 		try {
 			await this.executeInProjectRoot(async () => {
-				const options = {
-					output,
-					clipboard: clipboard ?? false
-				};
-				await startTask(taskId, options);
+				await startTask(taskId);
 			});
 			return `✅ 태스크 "${taskId}"가 성공적으로 시작되었습니다!`;
 		} catch (error) {

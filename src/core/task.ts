@@ -61,15 +61,7 @@ interface McpConfig {
 	prompt: string;
 }
 
-interface StartTaskOptions {
-	output?: string;
-	clipboard?: boolean;
-}
-
-export async function startTask(
-	taskId: string,
-	options: StartTaskOptions = {}
-): Promise<void> {
+export async function startTask(taskId: string): Promise<void> {
 	try {
 		console.log(`🚀 Task "${taskId}"를 시작합니다...\n`);
 
@@ -86,86 +78,23 @@ export async function startTask(
 		const taskConfigContent = await fs.readFile(taskConfigPath, 'utf-8');
 		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
 
-		// YAML 구조로 출력
-		let yamlOutput = '';
-		yamlOutput += `version: ${taskConfig.version}\n`;
-		yamlOutput += `kind: ${taskConfig.kind}\n`;
-		yamlOutput += `id: ${taskConfig.id}\n`;
-		yamlOutput += `name: ${taskConfig.name}\n`;
-		if (taskConfig.description) {
-			yamlOutput += `description: ${taskConfig.description}\n`;
-		}
-		yamlOutput += `status: ${taskConfig.status}\n`;
-		yamlOutput += `jobs:\n`;
+		// YAML 객체 구성
+		const yamlObject = await buildTaskYamlObject(taskConfig);
 
-		// Workflow prompt 수집 및 추가
-		if (taskConfig.jobs.workflow) {
-			const workflowPrompts = await collectWorkflowPromptsOnly(
-				taskConfig.jobs.workflow
-			);
-			const combinedWorkflowPrompt = workflowPrompts.join('\n\n');
-			yamlOutput += `  workflow: "${combinedWorkflowPrompt}"\n`;
-		}
-
-		// Rules prompts 수집 및 추가
-		if (taskConfig.jobs.rules && taskConfig.jobs.rules.length > 0) {
-			yamlOutput += `  rules:\n`;
-			for (const rulePath of taskConfig.jobs.rules) {
-				const rulePrompt = await collectRulePromptOnly(rulePath);
-				if (rulePrompt) {
-					yamlOutput += `    - "${rulePrompt}"\n`;
-				}
-			}
-		}
-
-		// MCPs prompts 수집 및 추가
-		if (taskConfig.jobs.mcps && taskConfig.jobs.mcps.length > 0) {
-			yamlOutput += `  mcps:\n`;
-			for (const mcpPath of taskConfig.jobs.mcps) {
-				const mcpPrompt = await collectMcpPromptOnly(mcpPath);
-				if (mcpPrompt) {
-					yamlOutput += `    - "${mcpPrompt}"\n`;
-				}
-			}
-		}
-
-		// systemprompt 추가
-		if (taskConfig.systemprompt) {
-			yamlOutput += `systemprompt: "${taskConfig.systemprompt}"\n`;
-		}
-
-		// prompt 추가
-		yamlOutput += `prompt: "${taskConfig.prompt}"\n`;
+		// YAML을 예쁘게 포맷팅
+		const yamlOutput = yaml.dump(yamlObject, {
+			indent: 2,
+			flowLevel: -1,
+			lineWidth: -1,
+			noRefs: true,
+			skipInvalid: true
+		});
 
 		console.log('\n' + '='.repeat(80));
 		console.log('🎯 Task YAML 구조 (Prompt 포함)');
 		console.log('='.repeat(80));
 		console.log(yamlOutput);
 		console.log('='.repeat(80));
-
-		// 파일 저장 옵션
-		if (options.output) {
-			await fs.writeFile(options.output, yamlOutput, 'utf-8');
-			console.log(
-				`\n📄 Task YAML 구조를 파일에 저장했습니다: ${options.output}`
-			);
-		}
-
-		// 클립보드 복사 옵션 (macOS만 지원)
-		if (options.clipboard) {
-			try {
-				// 임시 파일을 사용하여 안전하게 클립보드에 복사
-				const tempFile = path.join('/tmp', `task-${taskId}-yaml.txt`);
-				await fs.writeFile(tempFile, yamlOutput, 'utf-8');
-				await execAsync(`cat "${tempFile}" | pbcopy`);
-				await fs.unlink(tempFile); // 임시 파일 삭제
-				console.log('\n📋 Task YAML 구조를 클립보드에 복사했습니다');
-			} catch (clipboardError) {
-				console.warn(
-					'\n⚠️  클립보드 복사에 실패했습니다. macOS에서만 지원됩니다.'
-				);
-			}
-		}
 	} catch (error) {
 		console.error('❌ Task 시작 중 오류가 발생했습니다:', error);
 		throw error;
@@ -261,21 +190,9 @@ async function collectMcpPromptOnly(mcpPath: string): Promise<string | null> {
 }
 
 /**
- * 태스크 완료 인터페이스
+ * 태스크를 완료로 표시하고 알림을 전송합니다
  */
-interface CompleteTaskOptions {
-	skipSlack?: boolean;
-	skipDiscord?: boolean;
-	force?: boolean;
-}
-
-/**
- * 태스크를 완료로 표시하고 Slack 알림을 전송합니다
- */
-export async function completeTask(
-	taskId: string,
-	options: CompleteTaskOptions = {}
-): Promise<void> {
+export async function completeTask(taskId: string): Promise<void> {
 	try {
 		console.log(`✅ Task "${taskId}"를 완료 처리합니다...\n`);
 
@@ -294,9 +211,8 @@ export async function completeTask(
 		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
 
 		// 이미 완료된 태스크인지 확인
-		if (taskConfig.status === 'done' && !options.force) {
+		if (taskConfig.status === 'done') {
 			console.log(`ℹ️  Task "${taskConfig.name}"는 이미 완료되었습니다.`);
-			console.log(`   강제로 다시 완료 처리하려면 --force 옵션을 사용하세요.`);
 			return;
 		}
 
@@ -329,44 +245,36 @@ export async function completeTask(
 			console.warn('⚠️  프로젝트 정보를 가져올 수 없습니다.');
 		}
 
-		// Slack 알림 전송 (옵션에 따라)
-		if (!options.skipSlack) {
-			console.log('\n📤 Slack 알림을 전송합니다...');
+		// Slack 알림 전송
+		console.log('\n📤 Slack 알림을 전송합니다...');
 
-			const slackResult = await notifyTaskCompletion(
-				taskConfig.id,
-				taskConfig.name,
-				projectName
-			);
+		const slackResult = await notifyTaskCompletion(
+			taskConfig.id,
+			taskConfig.name,
+			projectName
+		);
 
-			if (slackResult.success) {
-				console.log('✅ Slack 알림이 성공적으로 전송되었습니다.');
-			} else {
-				console.warn(`⚠️  Slack 알림 전송 실패: ${slackResult.error}`);
-				console.warn('   태스크는 정상적으로 완료되었습니다.');
-			}
+		if (slackResult.success) {
+			console.log('✅ Slack 알림이 성공적으로 전송되었습니다.');
 		} else {
-			console.log('\n📤 Slack 알림이 건너뛰어졌습니다.');
+			console.warn(`⚠️  Slack 알림 전송 실패: ${slackResult.error}`);
+			console.warn('   태스크는 정상적으로 완료되었습니다.');
 		}
 
-		// Discord 알림 전송 (옵션에 따라)
-		if (!options.skipDiscord) {
-			console.log('\n📤 Discord 알림을 전송합니다...');
+		// Discord 알림 전송
+		console.log('\n📤 Discord 알림을 전송합니다...');
 
-			const discordResult = await notifyTaskCompletionDiscord(
-				taskConfig.id,
-				taskConfig.name,
-				projectName
-			);
+		const discordResult = await notifyTaskCompletionDiscord(
+			taskConfig.id,
+			taskConfig.name,
+			projectName
+		);
 
-			if (discordResult.success) {
-				console.log('✅ Discord 알림이 성공적으로 전송되었습니다.');
-			} else {
-				console.warn(`⚠️  Discord 알림 전송 실패: ${discordResult.error}`);
-				console.warn('   태스크는 정상적으로 완료되었습니다.');
-			}
+		if (discordResult.success) {
+			console.log('✅ Discord 알림이 성공적으로 전송되었습니다.');
 		} else {
-			console.log('\n📤 Discord 알림이 건너뛰어졌습니다.');
+			console.warn(`⚠️  Discord 알림 전송 실패: ${discordResult.error}`);
+			console.warn('   태스크는 정상적으로 완료되었습니다.');
 		}
 
 		console.log(`\n🎉 Task "${taskConfig.name}"이 성공적으로 완료되었습니다!`);
@@ -442,58 +350,7 @@ export async function showTask(taskId: string): Promise<void> {
 		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
 
 		// YAML 객체 구성
-		const yamlObject: any = {
-			version: taskConfig.version,
-			kind: taskConfig.kind,
-			id: taskConfig.id,
-			name: taskConfig.name,
-			status: taskConfig.status,
-			jobs: {}
-		};
-
-		// description이 있는 경우에만 추가
-		if (taskConfig.description) {
-			yamlObject.description = taskConfig.description;
-		}
-
-		// Workflow prompt 수집 및 추가
-		if (taskConfig.jobs.workflow) {
-			const workflowPrompts = await collectWorkflowPromptsOnly(
-				taskConfig.jobs.workflow
-			);
-			const combinedWorkflowPrompt = workflowPrompts.join('\n\n');
-			yamlObject.jobs.workflow = combinedWorkflowPrompt;
-		}
-
-		// Rules prompts 수집 및 추가
-		if (taskConfig.jobs.rules && taskConfig.jobs.rules.length > 0) {
-			yamlObject.jobs.rules = [];
-			for (const rulePath of taskConfig.jobs.rules) {
-				const rulePrompt = await collectRulePromptOnly(rulePath);
-				if (rulePrompt) {
-					yamlObject.jobs.rules.push(rulePrompt);
-				}
-			}
-		}
-
-		// MCPs prompts 수집 및 추가
-		if (taskConfig.jobs.mcps && taskConfig.jobs.mcps.length > 0) {
-			yamlObject.jobs.mcps = [];
-			for (const mcpPath of taskConfig.jobs.mcps) {
-				const mcpPrompt = await collectMcpPromptOnly(mcpPath);
-				if (mcpPrompt) {
-					yamlObject.jobs.mcps.push(mcpPrompt);
-				}
-			}
-		}
-
-		// systemprompt 추가
-		if (taskConfig.systemprompt) {
-			yamlObject.systemprompt = taskConfig.systemprompt;
-		}
-
-		// prompt 추가
-		yamlObject.prompt = taskConfig.prompt;
+		const yamlObject = await buildTaskYamlObject(taskConfig);
 
 		// YAML을 예쁘게 포맷팅해서 출력
 		const prettyYaml = yaml.dump(yamlObject, {
@@ -513,4 +370,64 @@ export async function showTask(taskId: string): Promise<void> {
 		console.error('❌ Task 구조 표시 중 오류가 발생했습니다:', error);
 		throw error;
 	}
+}
+
+/**
+ * Task 설정을 기반으로 YAML 객체를 구성합니다
+ */
+async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
+	const yamlObject: any = {
+		version: taskConfig.version,
+		kind: taskConfig.kind,
+		id: taskConfig.id,
+		name: taskConfig.name,
+		status: taskConfig.status,
+		jobs: {}
+	};
+
+	// description이 있는 경우에만 추가
+	if (taskConfig.description) {
+		yamlObject.description = taskConfig.description;
+	}
+
+	// Workflow prompt 수집 및 추가
+	if (taskConfig.jobs.workflow) {
+		const workflowPrompts = await collectWorkflowPromptsOnly(
+			taskConfig.jobs.workflow
+		);
+		const combinedWorkflowPrompt = workflowPrompts.join('\n\n');
+		yamlObject.jobs.workflow = combinedWorkflowPrompt;
+	}
+
+	// Rules prompts 수집 및 추가
+	if (taskConfig.jobs.rules && taskConfig.jobs.rules.length > 0) {
+		yamlObject.jobs.rules = [];
+		for (const rulePath of taskConfig.jobs.rules) {
+			const rulePrompt = await collectRulePromptOnly(rulePath);
+			if (rulePrompt) {
+				yamlObject.jobs.rules.push(rulePrompt);
+			}
+		}
+	}
+
+	// MCPs prompts 수집 및 추가
+	if (taskConfig.jobs.mcps && taskConfig.jobs.mcps.length > 0) {
+		yamlObject.jobs.mcps = [];
+		for (const mcpPath of taskConfig.jobs.mcps) {
+			const mcpPrompt = await collectMcpPromptOnly(mcpPath);
+			if (mcpPrompt) {
+				yamlObject.jobs.mcps.push(mcpPrompt);
+			}
+		}
+	}
+
+	// systemprompt 추가
+	if (taskConfig.systemprompt) {
+		yamlObject.systemprompt = taskConfig.systemprompt;
+	}
+
+	// prompt 추가
+	yamlObject.prompt = taskConfig.prompt;
+
+	return yamlObject;
 }

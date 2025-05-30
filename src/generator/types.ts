@@ -106,12 +106,12 @@ export type TemplateType =
 	| 'vars';
 
 // 제너레이터 옵션
-export interface GeneratorOptions {
+export type GeneratorOptions = {
 	outputDir: string;
 	templateDir: string;
 	variables: TemplateVariables;
 	overwrite?: boolean;
-}
+};
 
 // 템플릿 메타데이터
 export interface TemplateMetadata {
@@ -191,11 +191,4 @@ export interface ErrorInfo {
 	code: string;
 	message: string;
 	details?: Record<string, unknown>;
-}
-
-// 생성 옵션 인터페이스
-export interface GenerateTaskOptions {
-	description?: string;
-	priority?: 'low' | 'medium' | 'high';
-	estimatedHours?: string;
 }

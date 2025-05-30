@@ -79,21 +79,9 @@ addCmd
 	.description('새로운 태스크 파일을 생성합니다')
 	.argument('<task-id>', '태스크 ID')
 	.argument('[task-name]', '태스크 이름')
-	.option('--description <desc>', '태스크 설명')
-	.option(
-		'--priority <priority>',
-		'태스크 우선순위 (low, medium, high)',
-		'medium'
-	)
-	.option('--hours <hours>', '예상 작업 시간', '4')
-	.action(async (taskId, taskName, options) => {
+	.action(async (taskId, taskName) => {
 		try {
-			const taskOptions = {
-				description: options.description,
-				priority: options.priority as 'low' | 'medium' | 'high',
-				estimatedHours: options.hours
-			};
-			await generateTask(taskId, taskName, taskOptions);
+			await generateTask(taskId, taskName);
 		} catch (error) {
 			ErrorHandler.handleCliError('태스크 생성', error, debugMode);
 		}
@@ -142,10 +130,9 @@ program
 program
 	.command('clean')
 	.description('생성된 파일들을 정리합니다')
-	.option('--force', '확인 없이 강제 삭제')
-	.action(async (options) => {
+	.action(async () => {
 		try {
-			await cleanProject(options);
+			await cleanProject();
 		} catch (error) {
 			ErrorHandler.handleCliError('정리', error, debugMode);
 		}
@@ -179,11 +166,9 @@ startCmd
 	.command('task')
 	.description('지정된 task ID의 태스크를 시작합니다')
 	.argument('<task-id>', '시작할 태스크 ID')
-	.option('--output <file>', 'Prompt를 파일로 저장합니다')
-	.option('--clipboard', 'Prompt를 클립보드에 복사합니다 (macOS만 지원)')
-	.action(async (taskId, options) => {
+	.action(async (taskId) => {
 		try {
-			await startTask(taskId, options);
+			await startTask(taskId);
 		} catch (error) {
 			ErrorHandler.handleCliError('태스크 시작', error, debugMode);
 		}
@@ -192,18 +177,11 @@ startCmd
 // done 명령어
 program
 	.command('done')
-	.description('태스크를 완료로 표시하고 알림을 전송합니다')
+	.description('태스크를 완료로 표시합니다')
 	.argument('<task-id>', '완료할 태스크 ID')
-	.option('--skip-slack', 'Slack 알림을 건너뜁니다')
-	.option('--skip-discord', 'Discord 알림을 건너뜁니다')
-	.option('--force', '이미 완료된 태스크도 강제로 다시 완료 처리합니다')
-	.action(async (taskId, options) => {
+	.action(async (taskId) => {
 		try {
-			await completeTask(taskId, {
-				skipSlack: options.skipSlack,
-				skipDiscord: options.skipDiscord,
-				force: options.force
-			});
+			await completeTask(taskId);
 		} catch (error) {
 			ErrorHandler.handleCliError('태스크 완료', error, debugMode);
 		}

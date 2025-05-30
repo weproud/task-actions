@@ -1,29 +1,27 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {
-	YamlGenerator,
 	FileSystemUtils,
-	TemplateProcessor,
 	TASK_ACTIONS_DIR,
+	TemplateProcessor,
 	TemplateType,
 	TemplateVariables,
-	GenerateTaskOptions
+	YamlGenerator
 } from '../generator';
 import {
-	getDefaultProjectName,
-	getDefaultAuthor,
-	printDirectoryTree
-} from './utils';
-import { ProjectStatus, CleanOptions, StatusOptions } from './types';
-import {
-	PROJECT_CONSTANTS,
-	MESSAGES,
 	DEFAULT_URLS,
 	FILE_CONSTANTS,
+	MESSAGES,
+	PROJECT_CONSTANTS,
 	TIME_CONSTANTS
 } from './constants';
+import { ProjectStatus, StatusOptions } from './types';
+import {
+	getDefaultAuthor,
+	getDefaultProjectName,
+	printDirectoryTree
+} from './utils';
 import { YamlParser } from './yaml-parser';
-import { ErrorHandler } from './error-handler';
 
 /**
  * 기본 프로젝트 변수 수집
@@ -166,19 +164,16 @@ export async function generateByType(type: TemplateType): Promise<void> {
  */
 export async function generateTask(
 	taskId: string,
-	taskName?: string,
-	options?: GenerateTaskOptions
+	taskName?: string
 ): Promise<void> {
 	const currentDir = process.cwd();
 	const variables = await loadExistingVariables();
 
 	// 기본값 설정
 	const finalTaskName = taskName || `Task ${taskId}`;
-	const finalDescription =
-		options?.description || `${finalTaskName}에 대한 상세한 설명을 입력하세요.`;
-	const priority = options?.priority || PROJECT_CONSTANTS.DEFAULT_PRIORITY;
-	const estimatedHours =
-		options?.estimatedHours || PROJECT_CONSTANTS.DEFAULT_ESTIMATED_HOURS;
+	const finalDescription = `${finalTaskName}에 대한 상세한 설명을 입력하세요.`;
+	const priority = PROJECT_CONSTANTS.DEFAULT_PRIORITY;
+	const estimatedHours = PROJECT_CONSTANTS.DEFAULT_ESTIMATED_HOURS;
 
 	// 태스크별 추가 변수 설정
 	const taskVariables: TemplateVariables = {
@@ -302,18 +297,12 @@ export async function checkProjectStatus(
 /**
  * 프로젝트 정리
  */
-export async function cleanProject(options: CleanOptions): Promise<void> {
+export async function cleanProject(): Promise<void> {
 	const currentDir = process.cwd();
 	const taskActionsPath = path.join(currentDir, TASK_ACTIONS_DIR);
 
 	if (!FileSystemUtils.fileExists(taskActionsPath)) {
 		console.log(MESSAGES.CLEAN.NOT_FOUND);
-		return;
-	}
-
-	if (!options.force) {
-		console.log(MESSAGES.CLEAN.CONFIRMATION(TASK_ACTIONS_DIR));
-		console.log(MESSAGES.CLEAN.FORCE_HINT);
 		return;
 	}
 

@@ -14,9 +14,7 @@ export interface ValidationResult {
 	warnings: string[];
 }
 
-export interface CleanOptions {
-	force: boolean;
-}
+export interface CleanOptions {}
 
 export interface StatusOptions {
 	detailed?: boolean;
