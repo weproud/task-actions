@@ -147,13 +147,13 @@ cd mcp-server
    ```json
    {
    	"mcpServers": {
-   		"task-actions": {
+   		"task-actions-local": {
    			"command": "node",
-   			"args": ["/your/path/to/task-actions/mcp-server/dist/index.js"],
-   			"env": {
-   				"SLACK_WEBHOOK_URL": ""
-   			},
-   			"description": "Task Actions CLI를 위한 FastMCP 기반 MCP 서버"
+   			"args": [
+   				"/Users/raiiz/labs/workspace/task-actions/mcp-server/dist/index.js"
+   			],
+   			"env": {},
+   			"description": "Task Actions AI - 로컬 개발용 MCP 서버"
    		}
    	}
    }

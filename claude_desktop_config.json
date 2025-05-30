@@ -3,7 +3,7 @@
 		"task-actions": {
 			"command": "node",
 			"args": [
-				"/Users/raiz/labs/workspace/task-actions/mcp-server/dist/mcp-server/src/index.js"
+				"/Users/raiiz/labs/workspace/task-actions/mcp-server/dist/index.js"
 			],
 			"env": {
 				"SLACK_WEBHOOK_URL": "YOUR_SLACK_WEBHOOK_URL_HERE"

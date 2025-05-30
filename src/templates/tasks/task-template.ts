@@ -13,7 +13,9 @@ export const TASK_TEMPLATE: YamlTemplate = {
 		jobs: {
 			workflow: 'workflows/feature-development.yaml',
 			rules: [
-				'rules/development-rule.yaml'
+				'rules/the-must-follow-rule.yaml',
+				'rules/development-rule.yaml',
+				'rules/refactoring-rule.yaml'
 			],
 			mcps: [
 				'mcps/sequential-thinking.yaml',

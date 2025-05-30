@@ -1,209 +1,83 @@
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import path from 'path';
 
-// 상위 디렉토리의 core 모듈들을 import
-import {
-	checkProjectStatus,
-	cleanProject,
-	sendSlackMessage as coreSlackMessage,
-	generateByType,
-	generateTask,
-	initProject,
-	listTemplates,
-	notifyTaskCompletion,
-	startTask,
-	validateProject
-} from '../../src/core/index.js';
-
-import type {
-	ListTemplatesOptions,
-	StatusOptions
-} from '../../src/core/index.js';
-
-import type { SlackMessage } from '../../src/core/utils.js';
+const execAsync = promisify(exec);
 
 export class TaskActionsTools {
-	private readonly originalCwd: string;
-	private readonly rootDir: string;
+	private readonly taskActionsCli: string;
 
 	constructor() {
-		// 원래 작업 디렉터리를 저장
-		this.originalCwd = process.cwd();
-		// 프로젝트의 루트 디렉터리 설정
-		this.rootDir = path.join(__dirname, '../..');
+		// task-actions CLI 경로 설정 (절대 경로 사용)
+		this.taskActionsCli =
+			'/Users/raiiz/labs/workspace/task-actions/dist/cli.js';
 	}
 
-	private async executeInProjectRoot<T>(fn: () => Promise<T>): Promise<T> {
-		const originalCwd = process.cwd();
+	private async executeCli(
+		command: string,
+		args: string[] = []
+	): Promise<string> {
 		try {
-			// 작업 디렉터리를 프로젝트 루트로 변경
-			process.chdir(this.rootDir);
-			return await fn();
-		} finally {
-			// 원래 작업 디렉터리로 복원
-			process.chdir(originalCwd);
-		}
-	}
+			const fullCommand = `node ${this.taskActionsCli} ${command} ${args.join(
+				' '
+			)}`;
+			const { stdout, stderr } = await execAsync(fullCommand, {
+				cwd: process.cwd(),
+				timeout: 30000 // 30초 타임아웃
+			});
 
-	private async handleError(operation: string, error: any): Promise<string> {
-		const errorMessage = error instanceof Error ? error.message : String(error);
-		console.error(`❌ ${operation} 중 오류가 발생했습니다:`, errorMessage);
-		throw new Error(`❌ ${operation} 중 오류가 발생했습니다: ${errorMessage}`);
+			const output = stdout + (stderr ? `\n\nWarnings/Errors:\n${stderr}` : '');
+			return output || `${command} 명령어가 성공적으로 실행되었습니다.`;
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			throw new Error(`❌ 명령어 실행 중 오류가 발생했습니다: ${errorMessage}`);
+		}
 	}
 
 	async initProject(): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await initProject();
-			});
-			return '✅ 프로젝트 초기화가 완료되었습니다!';
-		} catch (error) {
-			return this.handleError('프로젝트 초기화', error);
-		}
+		return this.executeCli('init');
 	}
 
-	async addAction(): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await generateByType('action');
-			});
-			return '✅ Action 파일이 성공적으로 생성되었습니다!';
-		} catch (error) {
-			return this.handleError('Action 파일 생성', error);
-		}
-	}
-
-	async addWorkflow(): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await generateByType('workflow');
-			});
-			return '✅ Workflow 파일이 성공적으로 생성되었습니다!';
-		} catch (error) {
-			return this.handleError('Workflow 파일 생성', error);
-		}
-	}
-
-	async addMcp(): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await generateByType('mcp');
-			});
-			return '✅ MCP 파일이 성공적으로 생성되었습니다!';
-		} catch (error) {
-			return this.handleError('MCP 파일 생성', error);
-		}
-	}
-
-	async addRule(): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await generateByType('rule');
-			});
-			return '✅ Rule 파일이 성공적으로 생성되었습니다!';
-		} catch (error) {
-			return this.handleError('Rule 파일 생성', error);
-		}
-	}
-
-	async addTask(taskId: string, taskName?: string): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await generateTask(taskId, taskName);
-			});
-			return `✅ 태스크 "${taskId}"가 성공적으로 생성되었습니다!`;
-		} catch (error) {
-			return this.handleError('태스크 생성', error);
-		}
-	}
+	// 파일 생성 메서드들은 제거됨 - CLI를 직접 사용하세요
 
 	async listTemplates(type?: string): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				const options: ListTemplatesOptions = type ? { type } : {};
-				await listTemplates(options);
-			});
-			return '✅ 템플릿 목록 조회가 완료되었습니다!';
-		} catch (error) {
-			return this.handleError('템플릿 목록 조회', error);
-		}
+		const args = type ? ['--type', type] : [];
+		return this.executeCli('list', args);
 	}
 
 	async checkStatus(detailed?: boolean): Promise<string> {
-		try {
-			const status = await this.executeInProjectRoot(async () => {
-				const options: StatusOptions = { detailed: detailed ?? false };
-				return await checkProjectStatus(options);
-			});
-
-			let result = '📊 프로젝트 상태:\n';
-			result += `- 상태: ${status.isInitialized ? '초기화됨' : '미초기화'}\n`;
-			result += `- 필수 파일: ${status.hasRequiredFiles ? '존재' : '누락'}\n`;
-
-			if (status.missingFiles && status.missingFiles.length > 0) {
-				result += '\n❌ 누락된 파일들:\n';
-				status.missingFiles.forEach((file) => {
-					result += `  - ${file}\n`;
-				});
-			}
-
-			return result;
-		} catch (error) {
-			return this.handleError('프로젝트 상태 확인', error);
-		}
+		const args = detailed ? ['--detailed'] : [];
+		return this.executeCli('status', args);
 	}
 
 	async validateProject(): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await validateProject();
-			});
-			return '✅ 프로젝트 검증이 완료되었습니다!';
-		} catch (error) {
-			return this.handleError('프로젝트 검증', error);
-		}
+		return this.executeCli('validate');
 	}
 
-	async cleanProject(): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await cleanProject();
-			});
-			return '✅ 프로젝트 정리가 완료되었습니다!';
-		} catch (error) {
-			return this.handleError('프로젝트 정리', error);
-		}
-	}
+	// cleanProject 메서드는 제거됨 - 위험한 작업이므로 CLI를 직접 사용하세요
 
-	async startTask(taskId: string): Promise<string> {
-		try {
-			await this.executeInProjectRoot(async () => {
-				await startTask(taskId);
-			});
-			return `✅ 태스크 "${taskId}"가 성공적으로 시작되었습니다!`;
-		} catch (error) {
-			return this.handleError('태스크 시작', error);
+	async startTask(
+		taskId: string,
+		output?: string,
+		clipboard?: boolean
+	): Promise<string> {
+		const args = ['task', taskId];
+		if (output) {
+			args.push('--output', output);
 		}
+		if (clipboard) {
+			args.push('--clipboard');
+		}
+		return this.executeCli('start', args);
 	}
 
 	async sendSlackMessage(message: string, channel?: string): Promise<string> {
-		try {
-			const slackMessage: SlackMessage = {
-				text: message,
-				username: 'Task Actions Bot',
-				icon_emoji: ':robot_face:',
-				...(channel && { channel })
-			};
-
-			const result = await coreSlackMessage(slackMessage);
-
-			if (result.success) {
-				return '✅ Slack 메시지가 성공적으로 전송되었습니다!';
-			} else {
-				return `❌ Slack 메시지 전송 실패: ${result.error}`;
-			}
-		} catch (error) {
-			return this.handleError('Slack 메시지 전송', error);
+		const args = ['--message', message];
+		if (channel) {
+			args.push('--channel', channel);
 		}
+		return this.executeCli('slack', args);
 	}
 
 	async sendTaskCompletionNotification(
@@ -211,17 +85,11 @@ export class TaskActionsTools {
 		taskName: string,
 		projectName?: string
 	): Promise<string> {
-		try {
-			const result = await notifyTaskCompletion(taskId, taskName, projectName);
-
-			if (result.success) {
-				return `✅ 태스크 "${taskId}" 완료 알림이 Slack으로 전송되었습니다!`;
-			} else {
-				return `❌ 태스크 완료 알림 전송 실패: ${result.error}`;
-			}
-		} catch (error) {
-			return this.handleError('태스크 완료 알림 전송', error);
+		const args = ['--task-id', taskId, '--task-name', taskName];
+		if (projectName) {
+			args.push('--project-name', projectName);
 		}
+		return this.executeCli('notify', args);
 	}
 
 	async sendRichSlackMessage(
@@ -230,29 +98,16 @@ export class TaskActionsTools {
 		color?: string,
 		fields?: Array<{ title: string; value: string; short?: boolean }>
 	): Promise<string> {
-		try {
-			const slackMessage: SlackMessage = {
-				text,
-				username: 'Task Actions Bot',
-				icon_emoji: ':white_check_mark:',
-				attachments: [
-					{
-						color: color || 'good',
-						title: title || '알림',
-						...(fields && fields.length > 0 && { fields })
-					}
-				]
-			};
-
-			const result = await coreSlackMessage(slackMessage);
-
-			if (result.success) {
-				return '✅ 풍부한 형식의 Slack 메시지가 성공적으로 전송되었습니다!';
-			} else {
-				return `❌ Slack 메시지 전송 실패: ${result.error}`;
-			}
-		} catch (error) {
-			return this.handleError('풍부한 형식의 Slack 메시지 전송', error);
+		const args = ['--text', text];
+		if (title) {
+			args.push('--title', title);
 		}
+		if (color) {
+			args.push('--color', color);
+		}
+		if (fields && fields.length > 0) {
+			args.push('--fields', JSON.stringify(fields));
+		}
+		return this.executeCli('slack-rich', args);
 	}
 }

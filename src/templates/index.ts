@@ -24,7 +24,11 @@ export {
 } from './mcps';
 
 // Rules
-export { DEVELOPMENT_RULE_TEMPLATE, REFACTORING_RULE_TEMPLATE } from './rules';
+export {
+	DEVELOPMENT_RULE_TEMPLATE,
+	REFACTORING_RULE_TEMPLATE,
+	THE_MUST_FOLLOW_RULE_TEMPLATE
+} from './rules';
 
 // Tasks
 export { TASK_TEMPLATE } from './tasks';

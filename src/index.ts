@@ -1,6 +1,4 @@
 // src/index.ts
-const message: string = 'Hello, TypeScript!';
-console.log(message);
 
 // Main generator class
 export { YamlGenerator } from './generator';

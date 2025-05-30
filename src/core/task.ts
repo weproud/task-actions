@@ -329,10 +329,6 @@ async function updateTasksStatus(
 
 export async function showTask(taskId: string): Promise<void> {
 	try {
-		console.log(
-			`🔍 Displaying structure and prompts for Task "${taskId}"...\n`
-		);
-
 		const taskConfigPath = path.join('.task-actions', `task-${taskId}.yaml`);
 
 		// Check if file exists
@@ -358,11 +354,7 @@ export async function showTask(taskId: string): Promise<void> {
 			skipInvalid: true
 		});
 
-		console.log('\n' + '='.repeat(80));
-		console.log('🎯 Task YAML Structure (Including Prompts)');
-		console.log('='.repeat(80));
 		console.log(prettyYaml);
-		console.log('='.repeat(80));
 	} catch (error) {
 		console.error('❌ Error occurred while displaying task structure:', error);
 		throw error;
