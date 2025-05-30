@@ -4,7 +4,7 @@ import * as yaml from 'js-yaml';
 import { FileSystemUtils, TASK_ACTIONS_DIR } from '../generator';
 import { ValidationResult } from './types';
 
-// 검증할 파일 타입별 인터페이스 정의
+// Interface definitions for file types to validate
 interface BaseYamlConfig {
 	version: number;
 	kind: string;
@@ -20,7 +20,7 @@ interface TaskConfig extends BaseYamlConfig {
 		workflow?: string;
 		rules?: string[];
 		mcps?: string[];
-		// 동적으로 추가되는 custom jobs들을 허용
+		// Allow dynamically added custom jobs
 		[key: string]: string | string[] | undefined;
 	};
 }
@@ -35,7 +35,7 @@ interface WorkflowConfig extends BaseYamlConfig {
 	};
 }
 
-// 알려진 jobs 타입들과 그에 대응하는 검증 함수들
+// Known job types and their corresponding validation functions
 const KNOWN_JOB_TYPES = {
 	workflow: 'validateWorkflowRecursively',
 	rules: 'validateRuleFile',
@@ -43,7 +43,7 @@ const KNOWN_JOB_TYPES = {
 } as const;
 
 /**
- * YAML 파일의 필수 항목 검증
+ * Validate required fields in YAML files
  */
 function validateRequiredFields(config: any, filePath: string): string[] {
 	const requiredFields = ['version', 'kind', 'name', 'description', 'prompt'];
@@ -56,7 +56,7 @@ function validateRequiredFields(config: any, filePath: string): string[] {
 			config[field] === null ||
 			config[field] === ''
 		) {
-			errors.push(`${filePath}: 필수 항목 '${field}'가 누락되었습니다.`);
+			errors.push(`${filePath}: Required field '${field}' is missing.`);
 		}
 	}
 
@@ -64,7 +64,7 @@ function validateRequiredFields(config: any, filePath: string): string[] {
 }
 
 /**
- * YAML 파일 읽기 및 파싱
+ * Read and parse YAML files
  */
 async function loadYamlFile(
 	filePath: string
@@ -72,38 +72,38 @@ async function loadYamlFile(
 	const errors: string[] = [];
 
 	try {
-		// 파일 존재 확인
+		// Check file existence
 		await fs.access(filePath);
 
-		// 파일 읽기
+		// Read file
 		const content = await fs.readFile(filePath, 'utf-8');
 
 		if (content.trim().length === 0) {
-			errors.push(`${filePath}: 빈 파일입니다.`);
+			errors.push(`${filePath}: File is empty.`);
 			return { config: null, errors };
 		}
 
-		// YAML 파싱
+		// Parse YAML
 		const config = yaml.load(content);
 
 		if (!config) {
-			errors.push(`${filePath}: YAML 파싱에 실패했습니다.`);
+			errors.push(`${filePath}: YAML parsing failed.`);
 			return { config: null, errors };
 		}
 
 		return { config, errors };
 	} catch (error) {
 		if ((error as any).code === 'ENOENT') {
-			errors.push(`${filePath}: 파일이 존재하지 않습니다.`);
+			errors.push(`${filePath}: File does not exist.`);
 		} else {
-			errors.push(`${filePath}: 파일 읽기 오류 - ${(error as Error).message}`);
+			errors.push(`${filePath}: File read error - ${(error as Error).message}`);
 		}
 		return { config: null, errors };
 	}
 }
 
 /**
- * 범용 YAML 파일 검증 (custom 파일 타입들을 위한 범용 함수)
+ * Generic YAML file validation (for custom file types)
  */
 async function validateGenericYamlFile(
 	filePath: string,
@@ -113,14 +113,14 @@ async function validateGenericYamlFile(
 	const errors: string[] = [];
 	const fullPath = path.join('.task-actions', filePath);
 
-	// 순환 참조 방지
+	// Prevent circular references
 	if (visitedFiles.has(fullPath)) {
-		errors.push(`${filePath}: 순환 참조가 감지되었습니다.`);
+		errors.push(`${filePath}: Circular reference detected.`);
 		return errors;
 	}
 	visitedFiles.add(fullPath);
 
-	console.log(`   📦 ${fileType} 검증 중: ${filePath}`);
+	console.log(`   📦 Validating ${fileType}: ${filePath}`);
 
 	const { config, errors: loadErrors } = await loadYamlFile(fullPath);
 	errors.push(...loadErrors);
@@ -129,14 +129,14 @@ async function validateGenericYamlFile(
 		return errors;
 	}
 
-	// 필수 필드 검증
+	// Validate required fields
 	errors.push(...validateRequiredFields(config, filePath));
 
 	return errors;
 }
 
 /**
- * 워크플로우 파일 및 그 내부 uses 파일들을 재귀적으로 검증
+ * Recursively validate workflow files and their referenced uses files
  */
 async function validateWorkflowRecursively(
 	workflowPath: string,
@@ -145,14 +145,14 @@ async function validateWorkflowRecursively(
 	const errors: string[] = [];
 	const fullPath = path.join('.task-actions', workflowPath);
 
-	// 순환 참조 방지
+	// Prevent circular references
 	if (visitedFiles.has(fullPath)) {
-		errors.push(`${workflowPath}: 순환 참조가 감지되었습니다.`);
+		errors.push(`${workflowPath}: Circular reference detected.`);
 		return errors;
 	}
 	visitedFiles.add(fullPath);
 
-	console.log(`   📄 Workflow 검증 중: ${workflowPath}`);
+	console.log(`   📄 Validating Workflow: ${workflowPath}`);
 
 	const { config, errors: loadErrors } = await loadYamlFile(fullPath);
 	errors.push(...loadErrors);
@@ -161,10 +161,10 @@ async function validateWorkflowRecursively(
 		return errors;
 	}
 
-	// 필수 필드 검증
+	// Validate required fields
 	errors.push(...validateRequiredFields(config, workflowPath));
 
-	// WorkflowConfig 타입 검증
+	// Validate WorkflowConfig type
 	const workflowConfig = config as WorkflowConfig;
 
 	if (
@@ -172,11 +172,11 @@ async function validateWorkflowRecursively(
 		!workflowConfig.jobs.steps ||
 		!Array.isArray(workflowConfig.jobs.steps)
 	) {
-		errors.push(`${workflowPath}: 올바른 jobs.steps 배열이 없습니다.`);
+		errors.push(`${workflowPath}: Missing valid jobs.steps array.`);
 		return errors;
 	}
 
-	// 각 step의 uses 파일들을 재귀적으로 검증
+	// Recursively validate uses files in each step
 	for (const step of workflowConfig.jobs.steps) {
 		if (step.uses) {
 			const actionErrors = await validateActionFile(step.uses, visitedFiles);
@@ -192,7 +192,7 @@ async function validateWorkflowRecursively(
 }
 
 /**
- * Action 파일 검증
+ * Validate Action files
  */
 async function validateActionFile(
 	actionPath: string,
@@ -201,14 +201,14 @@ async function validateActionFile(
 	const errors: string[] = [];
 	const fullPath = path.join('.task-actions', actionPath);
 
-	// 순환 참조 방지
+	// Prevent circular references
 	if (visitedFiles.has(fullPath)) {
-		errors.push(`${actionPath}: 순환 참조가 감지되었습니다.`);
+		errors.push(`${actionPath}: Circular reference detected.`);
 		return errors;
 	}
 	visitedFiles.add(fullPath);
 
-	console.log(`     🎬 Action 검증 중: ${actionPath}`);
+	console.log(`     🎬 Validating Action: ${actionPath}`);
 
 	const { config, errors: loadErrors } = await loadYamlFile(fullPath);
 	errors.push(...loadErrors);
@@ -217,14 +217,14 @@ async function validateActionFile(
 		return errors;
 	}
 
-	// 필수 필드 검증
+	// Validate required fields
 	errors.push(...validateRequiredFields(config, actionPath));
 
 	return errors;
 }
 
 /**
- * Rule 파일 검증
+ * Validate Rule files
  */
 async function validateRuleFile(
 	rulePath: string,
@@ -233,14 +233,14 @@ async function validateRuleFile(
 	const errors: string[] = [];
 	const fullPath = path.join('.task-actions', rulePath);
 
-	// 순환 참조 방지
+	// Prevent circular references
 	if (visitedFiles.has(fullPath)) {
-		errors.push(`${rulePath}: 순환 참조가 감지되었습니다.`);
+		errors.push(`${rulePath}: Circular reference detected.`);
 		return errors;
 	}
 	visitedFiles.add(fullPath);
 
-	console.log(`   📜 Rule 검증 중: ${rulePath}`);
+	console.log(`   📜 Validating Rule: ${rulePath}`);
 
 	const { config, errors: loadErrors } = await loadYamlFile(fullPath);
 	errors.push(...loadErrors);
@@ -249,14 +249,14 @@ async function validateRuleFile(
 		return errors;
 	}
 
-	// 필수 필드 검증
+	// Validate required fields
 	errors.push(...validateRequiredFields(config, rulePath));
 
 	return errors;
 }
 
 /**
- * MCP 파일 검증
+ * Validate MCP files
  */
 async function validateMcpFile(
 	mcpPath: string,
@@ -265,14 +265,14 @@ async function validateMcpFile(
 	const errors: string[] = [];
 	const fullPath = path.join('.task-actions', mcpPath);
 
-	// 순환 참조 방지
+	// Prevent circular references
 	if (visitedFiles.has(fullPath)) {
-		errors.push(`${mcpPath}: 순환 참조가 감지되었습니다.`);
+		errors.push(`${mcpPath}: Circular reference detected.`);
 		return errors;
 	}
 	visitedFiles.add(fullPath);
 
-	console.log(`   🔧 MCP 검증 중: ${mcpPath}`);
+	console.log(`   🔧 Validating MCP: ${mcpPath}`);
 
 	const { config, errors: loadErrors } = await loadYamlFile(fullPath);
 	errors.push(...loadErrors);
@@ -281,14 +281,14 @@ async function validateMcpFile(
 		return errors;
 	}
 
-	// 필수 필드 검증
+	// Validate required fields
 	errors.push(...validateRequiredFields(config, mcpPath));
 
 	return errors;
 }
 
 /**
- * 파일 경로 배열을 검증하는 범용 함수
+ * Generic function to validate file path arrays
  */
 async function validateFileArray(
 	filePaths: string[],
@@ -309,13 +309,13 @@ async function validateFileArray(
 }
 
 /**
- * Task 파일 검증 및 참조되는 모든 파일들을 재귀적으로 검증 (custom jobs 지원)
+ * Validate Task files and recursively validate all referenced files (supports custom jobs)
  */
 async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 	const errors: string[] = [];
 	const visitedFiles = new Set<string>();
 
-	console.log(`🎯 Task 파일 검증: ${taskFilePath}`);
+	console.log(`🎯 Validating Task file: ${taskFilePath}`);
 
 	const { config, errors: loadErrors } = await loadYamlFile(taskFilePath);
 	errors.push(...loadErrors);
@@ -324,24 +324,24 @@ async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 		return errors;
 	}
 
-	// 필수 필드 검증
+	// Validate required fields
 	errors.push(...validateRequiredFields(config, taskFilePath));
 
-	// TaskConfig 타입 검증
+	// Validate TaskConfig type
 	const taskConfig = config as TaskConfig;
 
 	if (!taskConfig.jobs) {
-		errors.push(`${taskFilePath}: jobs 섹션이 없습니다.`);
+		errors.push(`${taskFilePath}: Missing jobs section.`);
 		return errors;
 	}
 
-	// 모든 jobs 항목을 검증 (알려진 것과 custom 모두)
+	// Validate all jobs entries (both known and custom)
 	for (const [jobKey, jobValue] of Object.entries(taskConfig.jobs)) {
 		if (jobValue === undefined || jobValue === null) {
 			continue;
 		}
 
-		// 알려진 job 타입들은 기존 로직으로 처리
+		// Handle known job types with existing logic
 		if (jobKey in KNOWN_JOB_TYPES) {
 			if (jobKey === 'workflow' && typeof jobValue === 'string') {
 				const workflowErrors = await validateWorkflowRecursively(
@@ -365,11 +365,11 @@ async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 				errors.push(...mcpErrors);
 			}
 		} else {
-			// Custom job 타입들은 범용 검증 함수로 처리
-			console.log(`   🔍 Custom job 타입 발견: ${jobKey}`);
+			// Handle custom job types with generic validation function
+			console.log(`   🔍 Custom job type found: ${jobKey}`);
 
 			if (typeof jobValue === 'string') {
-				// 단일 파일 참조
+				// Single file reference
 				const customErrors = await validateGenericYamlFile(
 					jobValue,
 					visitedFiles,
@@ -377,7 +377,7 @@ async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 				);
 				errors.push(...customErrors);
 			} else if (Array.isArray(jobValue)) {
-				// 파일 배열 참조
+				// File array reference
 				const customErrors = await validateFileArray(
 					jobValue,
 					visitedFiles,
@@ -387,7 +387,7 @@ async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 				errors.push(...customErrors);
 			} else {
 				errors.push(
-					`${taskFilePath}: jobs.${jobKey}는 문자열 또는 문자열 배열이어야 합니다.`
+					`${taskFilePath}: jobs.${jobKey} must be a string or string array.`
 				);
 			}
 		}
@@ -397,23 +397,23 @@ async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 }
 
 /**
- * 프로젝트 검증
+ * Validate project
  */
 export async function validateProject(): Promise<ValidationResult> {
-	console.log('🔍 프로젝트 검증을 시작합니다...\n');
+	console.log('🔍 Starting project validation...\n');
 
 	const currentDir = process.cwd();
 	const taskActionsPath = path.join(currentDir, TASK_ACTIONS_DIR);
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
-	// .task-actions 디렉토리 존재 확인
+	// Check if .task-actions directory exists
 	if (!FileSystemUtils.fileExists(taskActionsPath)) {
-		errors.push('Task Actions 프로젝트가 초기화되지 않았습니다.');
+		errors.push('Task Actions project is not initialized.');
 		return { isValid: false, errors, warnings };
 	}
 
-	// 필수 기본 파일들 확인
+	// Check required base files
 	const requiredFiles = ['vars.yaml', 'tasks.yaml'];
 	const missingFiles = [];
 
@@ -425,13 +425,13 @@ export async function validateProject(): Promise<ValidationResult> {
 	}
 
 	if (missingFiles.length > 0) {
-		errors.push(`누락된 필수 파일들: ${missingFiles.join(', ')}`);
+		errors.push(`Missing required files: ${missingFiles.join(', ')}`);
 	} else {
-		console.log('✅ 모든 필수 기본 파일이 존재합니다.');
+		console.log('✅ All required base files exist.');
 	}
 
-	// Task 파일들 찾기 및 검증
-	console.log('\n📝 Task 파일들을 검증합니다...');
+	// Find and validate Task files
+	console.log('\n📝 Validating Task files...');
 
 	try {
 		const files = await fs.readdir(taskActionsPath);
@@ -440,11 +440,11 @@ export async function validateProject(): Promise<ValidationResult> {
 		);
 
 		if (taskFiles.length === 0) {
-			warnings.push('Task 파일이 없습니다.');
+			warnings.push('No Task files found.');
 		} else {
-			console.log(`발견된 Task 파일: ${taskFiles.length}개\n`);
+			console.log(`Found Task files: ${taskFiles.length}\n`);
 
-			// 각 Task 파일을 재귀적으로 검증
+			// Recursively validate each Task file
 			for (const taskFile of taskFiles) {
 				const taskFilePath = path.join(taskActionsPath, taskFile);
 				const taskErrors = await validateTaskFile(taskFilePath);
@@ -452,26 +452,24 @@ export async function validateProject(): Promise<ValidationResult> {
 			}
 		}
 	} catch (error) {
-		errors.push(
-			`Task 파일 목록을 읽는 중 오류 발생: ${(error as Error).message}`
-		);
+		errors.push(`Error reading Task file list: ${(error as Error).message}`);
 	}
 
 	const isValid = errors.length === 0;
 
 	console.log('\n' + '='.repeat(50));
 	if (isValid) {
-		console.log('✅ 프로젝트 검증이 완료되었습니다.');
+		console.log('✅ Project validation completed.');
 		if (warnings.length > 0) {
-			console.log('\n⚠️  경고:');
+			console.log('\n⚠️  Warnings:');
 			warnings.forEach((warning) => console.log(`   - ${warning}`));
 		}
 	} else {
-		console.log('❌ 프로젝트 검증 중 오류가 발견되었습니다:');
+		console.log('❌ Errors found during project validation:');
 		errors.forEach((error) => console.log(`   - ${error}`));
 
 		if (warnings.length > 0) {
-			console.log('\n⚠️  추가 경고:');
+			console.log('\n⚠️  Additional warnings:');
 			warnings.forEach((warning) => console.log(`   - ${warning}`));
 		}
 	}
@@ -481,7 +479,7 @@ export async function validateProject(): Promise<ValidationResult> {
 }
 
 /**
- * YAML 파일 유효성 검사 (이전 버전과의 호환성을 위해 유지)
+ * YAML file validation (maintained for backward compatibility)
  */
 export async function validateYamlFiles(dirPath: string): Promise<void> {
 	const yamlFiles = FileSystemUtils.listFiles(dirPath, '.yaml');
@@ -490,15 +488,15 @@ export async function validateYamlFiles(dirPath: string): Promise<void> {
 		const filePath = path.join(dirPath, file);
 		try {
 			const content = FileSystemUtils.readFile(filePath);
-			// 간단한 YAML 구조 확인
+			// Simple YAML structure check
 			if (content.trim().length === 0) {
-				console.log(`   ❌ ${file}: 빈 파일`);
-				// 기본 구조 생성 로직
+				console.log(`   ❌ ${file}: Empty file`);
+				// Basic structure generation logic
 			} else {
-				console.log(`   ✅ ${file}: 유효`);
+				console.log(`   ✅ ${file}: Valid`);
 			}
 		} catch (error) {
-			console.log(`   ❌ ${file}: 읽기 오류 - ${error}`);
+			console.log(`   ❌ ${file}: Read error - ${error}`);
 		}
 	}
 }

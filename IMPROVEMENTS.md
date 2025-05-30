@@ -1,30 +1,30 @@
-# Task Actions 코드 품질 개선 보고서
+# Task Actions Code Quality Improvement Report
 
-## 개요
+## Overview
 
-본 문서는 Task Actions CLI 도구의 코드 품질 개선 작업을 정리한 보고서입니다.
+This document summarizes the code quality improvement work for the Task Actions CLI tool.
 
-## 주요 개선 사항
+## Major Improvements
 
-### 1. 타입 안전성 강화 ✅
+### 1. Enhanced Type Safety ✅
 
-**문제점:**
+**Issues:**
 
-- 15개 이상의 `any` 타입 사용으로 인한 타입 안전성 부족
-- 런타임 에러 위험성 증가
+- Lack of type safety due to 15+ uses of `any` type
+- Increased risk of runtime errors
 
-**해결방법:**
+**Solutions:**
 
-- `any` 타입을 구체적인 타입으로 전면 교체
-- 새로운 인터페이스 정의: `PerformanceMetrics`, `ErrorInfo`, `GenerateTaskOptions`
-- 유니온 타입 `YamlConfigTypes` 도입으로 YAML 설정 타입 통합
-- 인덱스 시그니처 타입 제한: `[key: string]: string | number | boolean | undefined`
+- Complete replacement of `any` types with specific types
+- New interface definitions: `PerformanceMetrics`, `ErrorInfo`, `GenerateTaskOptions`
+- Introduction of union type `YamlConfigTypes` for unified YAML configuration types
+- Index signature type restriction: `[key: string]: string | number | boolean | undefined`
 
-**결과:**
+**Results:**
 
-- 컴파일 타임 에러 조기 발견 가능
-- IDE 자동완성 및 타입 힌트 개선
-- 코드 안정성 향상
+- Early detection of compile-time errors
+- Improved IDE auto-completion and type hints
+- Enhanced code stability
 
 ### 2. 중복 코드 제거 및 공통 유틸리티 생성 ✅
 

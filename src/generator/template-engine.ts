@@ -24,20 +24,20 @@ export class TemplateEngine {
 
 		let result = template;
 
-		// {{variable}} 패턴을 찾아서 치환
+		// Find and replace {{variable}} pattern
 		const variablePattern = /\{\{(\s*[\w.]+\s*)\}\}/g;
 
 		result = result.replace(variablePattern, (match, variableName) => {
 			const trimmedName = variableName.trim();
 
-			// 중첩된 객체 속성 지원 (예: user.name)
+			// Support nested object properties (e.g., user.name)
 			const value = this.getNestedValue(variables, trimmedName);
 
 			if (value !== undefined && value !== null) {
 				return String(value);
 			}
 
-			// 변수가 없으면 원본 유지 (개발 시 디버깅용)
+			// Keep original if variable not found (for development debugging)
 			console.warn(`Warning: Template variable '${trimmedName}' not found`);
 			return match;
 		});
@@ -66,17 +66,17 @@ export class TemplateEngine {
 	}
 
 	/**
-	 * 템플릿 파일을 읽고 변수를 치환하여 결과 반환
-	 * @param templatePath 템플릿 파일 경로
-	 * @param variables 치환할 변수들
-	 * @returns 치환된 내용
+	 * Read template file and return result with variable substitution
+	 * @param templatePath Template file path
+	 * @param variables Variables to substitute
+	 * @returns Substituted content
 	 */
 	static renderFile(
 		templatePath: string,
 		variables: TemplateVariables
 	): string {
 		if (!templatePath) {
-			throw new Error('템플릿 파일 경로가 제공되지 않았습니다.');
+			throw new Error('Template file path not provided.');
 		}
 
 		if (!fs.existsSync(templatePath)) {
@@ -90,7 +90,7 @@ export class TemplateEngine {
 			const errorMessage =
 				error instanceof Error ? error.message : String(error);
 			throw new Error(
-				`템플릿 파일 읽기 실패 (${templatePath}): ${errorMessage}`
+				`Template file reading failed (${templatePath}): ${errorMessage}`
 			);
 		}
 	}
@@ -139,9 +139,9 @@ export class TemplateEngine {
 	}
 
 	/**
-	 * 템플릿에서 사용된 변수 목록 추출
-	 * @param template 템플릿 문자열
-	 * @returns 변수 이름 배열
+	 * Extract list of variables used in template
+	 * @param template Template string
+	 * @returns Array of variable names
 	 */
 	static extractVariables(template: string): string[] {
 		if (!template) {
@@ -160,16 +160,16 @@ export class TemplateEngine {
 				}
 			}
 		} catch {
-			console.warn('템플릿에서 변수 추출 중 오류가 발생했습니다.');
+			console.warn('Error occurred while extracting variables from template.');
 		}
 
 		return variables;
 	}
 
 	/**
-	 * 템플릿 파일에서 사용된 변수 목록 추출
-	 * @param templatePath 템플릿 파일 경로
-	 * @returns 변수 이름 배열
+	 * Extract list of variables used in template file
+	 * @param templatePath Template file path
+	 * @returns Array of variable names
 	 */
 	static extractVariablesFromFile(templatePath: string): string[] {
 		if (!templatePath) {
@@ -184,15 +184,18 @@ export class TemplateEngine {
 			const template = fs.readFileSync(templatePath, 'utf8');
 			return this.extractVariables(template);
 		} catch (error) {
-			console.warn(`템플릿 파일에서 변수 추출 실패 (${templatePath}):`, error);
+			console.warn(
+				`Variable extraction from template file failed (${templatePath}):`,
+				error
+			);
 			return [];
 		}
 	}
 
 	/**
-	 * 템플릿 유효성 검사
-	 * @param template 템플릿 문자열
-	 * @returns 유효성 여부
+	 * Template validation
+	 * @param template Template string
+	 * @returns Validity status
 	 */
 	static validateTemplate(template: string): boolean {
 		if (!template || typeof template !== 'string') {
@@ -200,10 +203,10 @@ export class TemplateEngine {
 		}
 
 		try {
-			// 기본적인 구문 검사
+			// Basic syntax check
 			const variables = this.extractVariables(template);
 
-			// 중괄호 짝이 맞는지 확인
+			// Check if braces are properly paired
 			const openBraces = (template.match(/\{\{/g) || []).length;
 			const closeBraces = (template.match(/\}\}/g) || []).length;
 

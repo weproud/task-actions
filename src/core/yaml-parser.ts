@@ -23,18 +23,18 @@ export class YamlParser {
 			const parsed = yaml.load(content) as Record<string, unknown>;
 
 			return this.extractVariablesFromParsedYaml(parsed);
-		}, '변수 파일 로드');
+		}, 'Load variables file');
 	}
 
 	/**
-	 * 파싱된 YAML에서 템플릿 변수 추출
+	 * Extract template variables from parsed YAML
 	 */
 	private static extractVariablesFromParsedYaml(
 		parsed: Record<string, unknown>
 	): Partial<TemplateVariables> {
 		const variables: Partial<TemplateVariables> = {};
 
-		// 프로젝트 정보 추출
+		// Extract project information
 		const project = parsed.project as Record<string, unknown> | undefined;
 		if (project) {
 			if (typeof project.name === 'string') {
@@ -51,7 +51,7 @@ export class YamlParser {
 			}
 		}
 
-		// Git 관련 설정 추출
+		// Extract Git-related settings
 		const git = parsed.git as Record<string, unknown> | undefined;
 		if (git) {
 			if (typeof git.repositoryUrl === 'string') {
@@ -62,7 +62,7 @@ export class YamlParser {
 			}
 		}
 
-		// 환경 설정 추출
+		// Extract environment settings
 		const env = parsed.environment as Record<string, unknown> | undefined;
 		if (env) {
 			if (typeof env.slackWebhookUrl === 'string') {
@@ -76,7 +76,7 @@ export class YamlParser {
 			}
 		}
 
-		// 최상위 레벨에서도 webhook 설정 확인 (새로운 형식)
+		// Check webhook settings at top level as well (new format)
 		if (typeof parsed.slack_webhook_url === 'string') {
 			variables.slackWebhookUrl = parsed.slack_webhook_url;
 		}
@@ -91,7 +91,7 @@ export class YamlParser {
 	}
 
 	/**
-	 * 레거시 수동 파싱 방식 (하위 호환성용)
+	 * Legacy manual parsing method (for backward compatibility)
 	 */
 	static extractVariablesFromText(content: string): Partial<TemplateVariables> {
 		const variables: Partial<TemplateVariables> = {};
@@ -116,7 +116,7 @@ export class YamlParser {
 	}
 
 	/**
-	 * YAML 콘텐츠 검증
+	 * YAML content validation
 	 */
 	static validateYamlContent(content: string): {
 		isValid: boolean;
@@ -134,7 +134,7 @@ export class YamlParser {
 	}
 
 	/**
-	 * 안전한 YAML 파싱 (타입 체크 포함)
+	 * Safe YAML parsing (with type checking)
 	 */
 	static safeParse<T = unknown>(content: string): T | null {
 		try {
@@ -146,7 +146,7 @@ export class YamlParser {
 	}
 
 	/**
-	 * YAML 객체를 문자열로 변환
+	 * Convert YAML object to string
 	 */
 	static stringify(obj: unknown): string {
 		try {
@@ -159,7 +159,7 @@ export class YamlParser {
 			});
 		} catch (error) {
 			throw new Error(
-				`YAML 직렬화 실패: ${
+				`YAML serialization failed: ${
 					error instanceof Error ? error.message : 'Unknown error'
 				}`
 			);

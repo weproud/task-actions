@@ -4,25 +4,25 @@ import { TemplateGroup, TemplateConfig } from './types';
 import { YamlTemplate } from '../templates/types';
 
 /**
- * 템플릿 디렉토리를 스캔하여 자동으로 템플릿을 등록하는 클래스
+ * Class that scans template directories and automatically registers templates
  */
 export class TemplateScanner {
 	private templatesPath: string;
 
 	constructor() {
-		// 현재 스크립트가 실행되는 위치 기준으로 템플릿 경로 결정
-		// development: src/generator에서 실행 -> ../templates
-		// production: dist/generator에서 실행 -> ../templates
+		// Determine template path based on current script execution location
+		// development: executed from src/generator -> ../templates
+		// production: executed from dist/generator -> ../templates
 		this.templatesPath = path.join(__dirname, '../templates');
 	}
 
 	/**
-	 * 모든 템플릿 그룹을 동적으로 스캔하여 생성
+	 * Dynamically scan and generate all template groups
 	 */
 	async scanAllTemplateGroups(): Promise<TemplateGroup[]> {
 		const templateGroups: TemplateGroup[] = [];
 
-		// 각 카테고리 디렉토리 스캔
+		// Scan each category directory
 		const categories = ['actions', 'workflows', 'mcps', 'rules', 'base'];
 
 		for (const category of categories) {
@@ -65,7 +65,7 @@ export class TemplateScanner {
 	}
 
 	/**
-	 * 디렉토리 내의 모든 템플릿 파일을 스캔
+	 * Scan all template files in directory
 	 */
 	private async scanTemplatesInDirectory(
 		dirPath: string
@@ -76,7 +76,7 @@ export class TemplateScanner {
 			const files = fs.readdirSync(dirPath);
 
 			for (const file of files) {
-				// .js 파일이고 index.js가 아닌 경우만 처리 (빌드된 환경)
+				// Process only .js files that are not index.js (built environment)
 				if (file.endsWith('.js') && file !== 'index.js') {
 					const template = await this.loadTemplateFromFile(dirPath, file);
 					if (template) {
@@ -85,14 +85,14 @@ export class TemplateScanner {
 				}
 			}
 		} catch (error) {
-			console.warn(`템플릿 디렉토리 스캔 중 오류: ${dirPath}`, error);
+			console.warn(`Error during template directory scan: ${dirPath}`, error);
 		}
 
 		return templates.sort((a, b) => a.filename.localeCompare(b.filename));
 	}
 
 	/**
-	 * 개별 템플릿 파일에서 템플릿을 로드
+	 * Load template from individual template file
 	 */
 	private async loadTemplateFromFile(
 		dirPath: string,
@@ -102,7 +102,7 @@ export class TemplateScanner {
 			const filePath = path.join(dirPath, filename);
 			const module = await import(filePath);
 
-			// 파일에서 첫 번째 export된 템플릿 찾기
+			// Find first exported template from file
 			const templateKey = Object.keys(module).find(
 				(key) => key.endsWith('_TEMPLATE') && module[key]?.name
 			);
@@ -113,15 +113,15 @@ export class TemplateScanner {
 
 			const template: YamlTemplate = module[templateKey];
 
-			// 파일명에서 yaml 파일명 생성 (예: test.js -> test.yaml)
+			// Generate yaml filename from filename (e.g., test.js -> test.yaml)
 			const yamlFilename = filename.replace('.js', '.yaml');
 
 			return {
-				template: template as any, // 타입 호환성을 위한 임시 캐스팅
+				template: template as any, // Temporary casting for type compatibility
 				filename: yamlFilename
 			};
 		} catch (error) {
-			// 조용히 실패 처리 (선택적 템플릿이므로)
+			// Silent failure handling (since templates are optional)
 			return null;
 		}
 	}

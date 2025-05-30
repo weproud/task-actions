@@ -16,17 +16,17 @@ export const DIRECTORY_CONFIG: DirectoryConfig[] = [
 	{ name: 'rules', path: `${TASK_ACTIONS_DIR}/rules`, required: true }
 ];
 
-// 템플릿 스캐너 인스턴스
+// Template scanner instance
 const templateScanner = new TemplateScanner();
 
-// 동적으로 생성된 템플릿 그룹들 (캐시)
+// Dynamically generated template groups (cache)
 let cachedTemplateGroups: TemplateGroup[] | null = null;
 
-// 태스크 템플릿 (특별 처리)
+// Task template (special handling)
 export const TASK_TEMPLATE = tasksTemplates.TASK_TEMPLATE;
 
 /**
- * 템플릿 타입으로 템플릿 그룹 찾기
+ * Find template group by template type
  */
 export async function getTemplateGroup(
 	type: string
@@ -36,39 +36,39 @@ export async function getTemplateGroup(
 }
 
 /**
- * 모든 템플릿 그룹 가져오기 (동적 스캔)
+ * Get all template groups (dynamic scan)
  */
 export async function getAllTemplateGroups(): Promise<TemplateGroup[]> {
-	// 캐시된 결과가 있으면 반환
+	// Return cached result if available
 	if (cachedTemplateGroups) {
 		return cachedTemplateGroups;
 	}
 
 	try {
-		// 동적 스캔으로 템플릿 그룹 생성
+		// Create template groups through dynamic scan
 		cachedTemplateGroups = await templateScanner.scanAllTemplateGroups();
 
 		console.log(
-			`📁 ${cachedTemplateGroups.length}개의 템플릿 그룹을 자동 스캔했습니다:`
+			`📁 Auto-scanned ${cachedTemplateGroups.length} template groups:`
 		);
 		cachedTemplateGroups.forEach((group) => {
 			console.log(
-				`   - ${group.displayName}: ${group.templates.length}개 템플릿`
+				`   - ${group.displayName}: ${group.templates.length} templates`
 			);
 		});
 
 		return cachedTemplateGroups;
 	} catch (error) {
-		console.error('템플릿 스캔 중 오류가 발생했습니다:', error);
+		console.error('Error occurred during template scan:', error);
 
-		// 에러 발생 시 빈 배열 반환
+		// Return empty array on error
 		cachedTemplateGroups = [];
 		return cachedTemplateGroups;
 	}
 }
 
 /**
- * 템플릿 그룹 캐시 초기화 (개발 중 사용)
+ * Clear template groups cache (for use during development)
  */
 export function clearTemplateGroupsCache(): void {
 	cachedTemplateGroups = null;

@@ -2,12 +2,12 @@ import { YamlTemplate } from '../types';
 
 export const FEATURE_DEVELOPMENT_WORKFLOW_TEMPLATE: YamlTemplate = {
 	name: 'workflows/feature-development.yaml',
-	description: '{{projectName}} Feature Development 작업을 수행한다.',
+	description: 'Perform {{projectName}} Feature Development work.',
 	content: {
 		version: 1,
 		kind: 'workflow',
 		name: 'Feature Development',
-		description: '{{projectName}} Feature Development 작업을 수행한다.',
+		description: 'Perform {{projectName}} Feature Development work.',
 		jobs: {
 			steps: [
 				{
@@ -36,6 +36,6 @@ export const FEATURE_DEVELOPMENT_WORKFLOW_TEMPLATE: YamlTemplate = {
 				}
 			]
 		},
-		prompt: `steps 순서대로 작업을 수행합니다.`
+		prompt: `Perform tasks in steps order.`
 	}
 };

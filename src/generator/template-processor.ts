@@ -10,11 +10,11 @@ import { FileSystemUtils } from './file-system-utils';
 import { TASK_ACTIONS_DIR } from './template-config';
 
 /**
- * 템플릿 처리를 담당하는 유틸리티 클래스
+ * Utility class responsible for template processing
  */
 export class TemplateProcessor {
 	/**
-	 * 템플릿 변수를 치환하는 헬퍼 함수
+	 * Helper function to substitute template variables
 	 */
 	static replaceTemplateVariables(
 		content: Record<string, unknown>,
@@ -222,7 +222,7 @@ export class TemplateProcessor {
 	}
 
 	/**
-	 * 템플릿 검증
+	 * Template validation
 	 */
 	static validateTemplate(template: YamlTemplate): boolean {
 		try {
@@ -230,7 +230,7 @@ export class TemplateProcessor {
 				return false;
 			}
 
-			// 기본적인 YAML 유효성 검사
+			// Basic YAML validity check
 			JSON.stringify(template.content);
 			return true;
 		} catch {
@@ -239,7 +239,7 @@ export class TemplateProcessor {
 	}
 
 	/**
-	 * 변수 검증 (타입 안전성 강화)
+	 * Variable validation (enhanced type safety)
 	 */
 	static validateVariables(variables: TemplateVariables): boolean {
 		const required = ['projectName', 'projectDescription', 'author', 'version'];
@@ -247,7 +247,7 @@ export class TemplateProcessor {
 		for (const field of required) {
 			const value = variables[field];
 			if (!value || (typeof value === 'string' && value.trim() === '')) {
-				console.warn(`경고: 필수 변수 '${field}'가 누락되었습니다.`);
+				console.warn(`Warning: Required variable '${field}' is missing.`);
 				return false;
 			}
 		}

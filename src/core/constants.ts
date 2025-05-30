@@ -1,4 +1,4 @@
-// 프로젝트 관련 상수
+// Project-related constants
 export const PROJECT_CONSTANTS = {
 	DEFAULT_VERSION: '1.0.0',
 	DEFAULT_BRANCH_PREFIX: 'feature',
@@ -8,62 +8,60 @@ export const PROJECT_CONSTANTS = {
 	DEFAULT_ESTIMATED_HOURS: '4'
 } as const;
 
-// 시간 관련 상수
+// Time-related constants
 export const TIME_CONSTANTS = {
 	TIMESTAMP_FORMAT: 'yyyyMMddHHmmss',
 	BACKUP_COUNTER_START: 1
 } as const;
 
-// 메시지 관련 상수
+// Message-related constants
 export const MESSAGES = {
 	INIT: {
-		STARTING: '🚀 Task Actions 프로젝트를 초기화합니다...\n',
-		SUCCESS: '✅ 프로젝트 초기화가 완료되었습니다!',
-		ERROR: '❌ 초기화 중 오류가 발생했습니다:'
+		STARTING: '🚀 Initializing Task Actions project...\n',
+		SUCCESS: '✅ Project initialization completed!',
+		ERROR: '❌ Error occurred during initialization:'
 	},
 	BACKUP: {
 		SUCCESS: (dirName: string) =>
-			`📦 기존 .task-actions 디렉토리를 ${dirName}으로 백업했습니다.`,
+			`📦 Backed up existing .task-actions directory to ${dirName}.`,
 		WARNING: (error: unknown) =>
-			`⚠️  백업 생성 중 오류가 발생했습니다: ${error}`,
-		ERROR: '기존 .task-actions 디렉토리 백업에 실패했습니다.'
+			`⚠️  Error occurred while creating backup: ${error}`,
+		ERROR: 'Failed to backup existing .task-actions directory.'
 	},
 	TASK: {
-		SUCCESS: (filename: string) =>
-			`\n✅ 태스크 파일이 생성되었습니다: ${filename}`,
-		NEXT_STEPS: '\n📝 다음 단계:',
-		STEP_1: '1. 생성된 태스크 파일을 편집하여 요구사항을 상세히 작성하세요',
-		STEP_2: (dir: string) =>
-			`2. ${dir}/tasks.yaml 파일에 새 태스크를 추가하세요`
+		SUCCESS: (filename: string) => `\n✅ Task file created: ${filename}`,
+		NEXT_STEPS: '\n📝 Next steps:',
+		STEP_1: '1. Edit the generated task file to write detailed requirements',
+		STEP_2: (dir: string) => `2. Add the new task to ${dir}/tasks.yaml file`
 	},
 	STATUS: {
-		NOT_INITIALIZED: '❌ Task Actions 프로젝트가 초기화되지 않았습니다.',
-		INIT_HINT: '💡 `task-actions init` 명령어로 프로젝트를 초기화하세요.',
-		INITIALIZED: '✅ Task Actions 프로젝트가 초기화되어 있습니다.',
-		DIRECTORY_STRUCTURE: '\n📁 디렉토리 구조:'
+		NOT_INITIALIZED: '❌ Task Actions project is not initialized.',
+		INIT_HINT: '💡 Initialize the project with `task-actions init` command.',
+		INITIALIZED: '✅ Task Actions project is initialized.',
+		DIRECTORY_STRUCTURE: '\n📁 Directory structure:'
 	},
 	CLEAN: {
-		NOT_FOUND: '❌ 정리할 Task Actions 프로젝트를 찾을 수 없습니다.',
-		CONFIRMATION: (dir: string) => `🗑️  ${dir} 디렉토리를 삭제하려고 합니다.`,
-		FORCE_HINT: '강제 삭제하려면 --force 옵션을 사용하세요.',
-		PROGRESS: '🗑️  파일들을 삭제합니다...',
-		SUCCESS: '✅ 프로젝트 정리가 완료되었습니다.'
+		NOT_FOUND: '❌ No Task Actions project found to clean.',
+		CONFIRMATION: (dir: string) => `🗑️  About to delete ${dir} directory.`,
+		FORCE_HINT: 'Use --force option to force deletion.',
+		PROGRESS: '🗑️  Deleting files...',
+		SUCCESS: '✅ Project cleanup completed.'
 	},
 	GENERATION: {
-		SUCCESS: (type: string) => `\n✅ ${type} 파일 생성 완료!`,
-		ALL_SUCCESS: '\n✅ 모든 YAML 파일 생성이 완료되었습니다!',
-		ERROR: (type: string) => `❌ ${type} 파일 생성 중 오류가 발생했습니다:`
+		SUCCESS: (type: string) => `\n✅ ${type} file generation completed!`,
+		ALL_SUCCESS: '\n✅ All YAML file generation completed!',
+		ERROR: (type: string) => `❌ Error occurred while generating ${type} files:`
 	},
 	VALIDATION: {
 		LOADING_WARNING:
-			'vars.yaml 파일을 읽는 중 오류가 발생했습니다. 기본값을 사용합니다.',
-		REQUIRED_VARIABLES_MISSING: '필수 템플릿 변수가 누락되었습니다.',
-		TEMPLATE_INVALID: '태스크 템플릿이 유효하지 않습니다.',
-		GENERATION_FAILED: '태스크 파일 생성에 실패했습니다.'
+			'Error occurred while reading vars.yaml file. Using default values.',
+		REQUIRED_VARIABLES_MISSING: 'Required template variables are missing.',
+		TEMPLATE_INVALID: 'Task template is invalid.',
+		GENERATION_FAILED: 'Failed to generate task file.'
 	}
 } as const;
 
-// URL 관련 기본값
+// URL-related defaults
 export const DEFAULT_URLS = {
 	SLACK_WEBHOOK: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK',
 	DISCORD_WEBHOOK: 'https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK',
@@ -72,14 +70,14 @@ export const DEFAULT_URLS = {
 		`https://github.com/${author}/${projectName}.git`
 } as const;
 
-// 파일 관련 상수
+// File-related constants
 export const FILE_CONSTANTS = {
 	TASK_FILENAME_TEMPLATE: (taskId: string) => `task-${taskId}.yaml`,
 	VARS_FILENAME: 'vars.yaml',
 	TASKS_FILENAME: 'tasks.yaml'
 } as const;
 
-// 정규식 패턴 (YAML 파싱용)
+// Regular expression patterns (for YAML parsing)
 export const YAML_PATTERNS = {
 	PROJECT_NAME: /project:\s*\n\s*name:\s*(.+)/,
 	PROJECT_AUTHOR: /project:\s*\n(?:.*\n)*?\s*author:\s*(.+)/,

@@ -2,10 +2,10 @@
 const message: string = 'Hello, TypeScript!';
 console.log(message);
 
-// 메인 제너레이터 클래스
+// Main generator class
 export { YamlGenerator } from './generator';
 
-// 유틸리티 클래스들
+// Utility classes
 export {
 	FileSystemUtils,
 	TemplateProcessor,
@@ -13,7 +13,7 @@ export {
 	PerformanceUtils
 } from './generator';
 
-// 템플릿 설정 (TASK_TEMPLATE 제외하고 export)
+// Template configuration (export all except TASK_TEMPLATE)
 export {
 	TASK_ACTIONS_DIR,
 	getTemplateGroup,
@@ -22,8 +22,8 @@ export {
 	DIRECTORY_CONFIG
 } from './generator/template-config';
 
-// 타입 정의
+// Type definitions
 export * from './generator/types';
 
-// 템플릿들 (모든 템플릿 export)
+// Templates (export all templates)
 export * from './templates';

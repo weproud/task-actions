@@ -2,7 +2,7 @@ import { YamlTemplate } from '../types';
 
 export const VARS_BASE_TEMPLATE: YamlTemplate = {
 	name: 'base/vars.yaml',
-	description: '{{projectName}} 환경 변수 설정',
+	description: '{{projectName}} environment variable configuration',
 	content: {
 		slack_webhook_url: '{{slackWebhookUrl}}',
 		discord_webhook_url: '{{discordWebhookUrl}}',

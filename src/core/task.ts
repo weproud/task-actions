@@ -133,10 +133,7 @@ async function collectWorkflowPromptsOnly(
 			}
 		}
 	} catch (error) {
-		console.warn(
-			`⚠️  Workflow 파일을 읽는 중 오류 발생: ${workflowPath}`,
-			error
-		);
+		console.warn(`⚠️  Error reading workflow file: ${workflowPath}`, error);
 	}
 
 	return prompts;
@@ -151,10 +148,10 @@ async function collectActionPromptOnly(
 		const actionContent = await fs.readFile(fullPath, 'utf-8');
 		const actionConfig: ActionConfig = yaml.load(actionContent) as ActionConfig;
 
-		// 헤더 없이 prompt만 반환
+		// Return only prompt without header
 		return actionConfig.prompt;
 	} catch (error) {
-		console.warn(`⚠️  Action 파일을 읽는 중 오류 발생: ${actionPath}`, error);
+		console.warn(`⚠️  Error reading action file: ${actionPath}`, error);
 		return null;
 	}
 }
@@ -166,10 +163,10 @@ async function collectRulePromptOnly(rulePath: string): Promise<string | null> {
 		const ruleContent = await fs.readFile(fullPath, 'utf-8');
 		const ruleConfig: RuleConfig = yaml.load(ruleContent) as RuleConfig;
 
-		// 헤더 없이 prompt만 반환
+		// Return only prompt without header
 		return ruleConfig.prompt;
 	} catch (error) {
-		console.warn(`⚠️  Rule 파일을 읽는 중 오류 발생: ${rulePath}`, error);
+		console.warn(`⚠️  Error reading rule file: ${rulePath}`, error);
 		return null;
 	}
 }
@@ -181,60 +178,60 @@ async function collectMcpPromptOnly(mcpPath: string): Promise<string | null> {
 		const mcpContent = await fs.readFile(fullPath, 'utf-8');
 		const mcpConfig: McpConfig = yaml.load(mcpContent) as McpConfig;
 
-		// 헤더 없이 prompt만 반환
+		// Return only prompt without header
 		return mcpConfig.prompt;
 	} catch (error) {
-		console.warn(`⚠️  MCP 파일을 읽는 중 오류 발생: ${mcpPath}`, error);
+		console.warn(`⚠️  Error reading MCP file: ${mcpPath}`, error);
 		return null;
 	}
 }
 
 /**
- * 태스크를 완료로 표시하고 알림을 전송합니다
+ * Mark task as completed and send notifications
  */
 export async function completeTask(taskId: string): Promise<void> {
 	try {
-		console.log(`✅ Task "${taskId}"를 완료 처리합니다...\n`);
+		console.log(`✅ Processing task "${taskId}" as completed...\n`);
 
 		const taskConfigPath = path.join('.task-actions', `task-${taskId}.yaml`);
 
-		// 파일이 존재하는지 확인
+		// Check if file exists
 		try {
 			await fs.access(taskConfigPath);
 		} catch (error) {
-			console.error(`❌ Task 파일을 찾을 수 없습니다: ${taskConfigPath}`);
+			console.error(`❌ Task file not found: ${taskConfigPath}`);
 			return;
 		}
 
-		// 태스크 설정 파일 읽기
+		// Read task configuration file
 		const taskConfigContent = await fs.readFile(taskConfigPath, 'utf-8');
 		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
 
-		// 이미 완료된 태스크인지 확인
+		// Check if task is already completed
 		if (taskConfig.status === 'done') {
-			console.log(`ℹ️  Task "${taskConfig.name}"는 이미 완료되었습니다.`);
+			console.log(`ℹ️  Task "${taskConfig.name}" is already completed.`);
 			return;
 		}
 
 		console.log(`📋 Task: ${taskConfig.name}`);
-		console.log(`📝 이전 상태: ${taskConfig.status}`);
+		console.log(`📝 Previous status: ${taskConfig.status}`);
 
-		// 태스크 상태를 'done'으로 변경
+		// Change task status to 'done'
 		taskConfig.status = 'done';
 
-		// 수정된 설정을 파일에 저장
+		// Save modified configuration to file
 		const updatedYamlContent = yaml.dump(taskConfig, {
 			indent: 2,
 			flowLevel: -1
 		});
 
 		await fs.writeFile(taskConfigPath, updatedYamlContent, 'utf-8');
-		console.log(`✅ 태스크 상태가 'done'으로 변경되었습니다.`);
+		console.log(`✅ Task status changed to 'done'.`);
 
-		// tasks.yaml 파일도 업데이트
+		// Update tasks.yaml file as well
 		await updateTasksStatus(taskId, 'done');
 
-		// 프로젝트 정보 가져오기
+		// Get project information
 		let projectName = 'Unknown Project';
 		try {
 			const varsPath = path.join('.task-actions', 'vars.yaml');
@@ -242,11 +239,11 @@ export async function completeTask(taskId: string): Promise<void> {
 			const vars = yaml.load(varsContent) as any;
 			projectName = vars.project?.name || projectName;
 		} catch (error) {
-			console.warn('⚠️  프로젝트 정보를 가져올 수 없습니다.');
+			console.warn('⚠️  Unable to get project information.');
 		}
 
-		// Slack 알림 전송
-		console.log('\n📤 Slack 알림을 전송합니다...');
+		// Send Slack notification
+		console.log('\n📤 Sending Slack notification...');
 
 		const slackResult = await notifyTaskCompletion(
 			taskConfig.id,
@@ -255,14 +252,14 @@ export async function completeTask(taskId: string): Promise<void> {
 		);
 
 		if (slackResult.success) {
-			console.log('✅ Slack 알림이 성공적으로 전송되었습니다.');
+			console.log('✅ Slack notification sent successfully.');
 		} else {
-			console.warn(`⚠️  Slack 알림 전송 실패: ${slackResult.error}`);
-			console.warn('   태스크는 정상적으로 완료되었습니다.');
+			console.warn(`⚠️  Slack notification failed: ${slackResult.error}`);
+			console.warn('   Task completed successfully.');
 		}
 
-		// Discord 알림 전송
-		console.log('\n📤 Discord 알림을 전송합니다...');
+		// Send Discord notification
+		console.log('\n📤 Sending Discord notification...');
 
 		const discordResult = await notifyTaskCompletionDiscord(
 			taskConfig.id,
@@ -271,21 +268,21 @@ export async function completeTask(taskId: string): Promise<void> {
 		);
 
 		if (discordResult.success) {
-			console.log('✅ Discord 알림이 성공적으로 전송되었습니다.');
+			console.log('✅ Discord notification sent successfully.');
 		} else {
-			console.warn(`⚠️  Discord 알림 전송 실패: ${discordResult.error}`);
-			console.warn('   태스크는 정상적으로 완료되었습니다.');
+			console.warn(`⚠️  Discord notification failed: ${discordResult.error}`);
+			console.warn('   Task completed successfully.');
 		}
 
-		console.log(`\n🎉 Task "${taskConfig.name}"이 성공적으로 완료되었습니다!`);
+		console.log(`\n🎉 Task "${taskConfig.name}" completed successfully!`);
 	} catch (error) {
-		console.error('❌ Task 완료 처리 중 오류가 발생했습니다:', error);
+		console.error('❌ Error occurred while processing task completion:', error);
 		throw error;
 	}
 }
 
 /**
- * tasks.yaml 파일에서 태스크 상태를 업데이트합니다
+ * Update task status in tasks.yaml file
  */
 async function updateTasksStatus(
 	taskId: string,
@@ -294,18 +291,18 @@ async function updateTasksStatus(
 	try {
 		const tasksPath = path.join('.task-actions', 'tasks.yaml');
 
-		// tasks.yaml 파일이 있는지 확인
+		// Check if tasks.yaml file exists
 		try {
 			await fs.access(tasksPath);
 		} catch (error) {
-			console.warn('⚠️  tasks.yaml 파일을 찾을 수 없습니다.');
+			console.warn('⚠️  tasks.yaml file not found.');
 			return;
 		}
 
 		const tasksContent = await fs.readFile(tasksPath, 'utf-8');
 		const tasksConfig = yaml.load(tasksContent) as any;
 
-		// tasks 배열에서 해당 태스크 찾아서 상태 업데이트
+		// Find and update task status in tasks array
 		if (tasksConfig.tasks && Array.isArray(tasksConfig.tasks)) {
 			const taskIndex = tasksConfig.tasks.findIndex(
 				(task: any) => task.id === taskId
@@ -320,39 +317,39 @@ async function updateTasksStatus(
 				});
 
 				await fs.writeFile(tasksPath, updatedTasksContent, 'utf-8');
-				console.log('✅ tasks.yaml 파일이 업데이트되었습니다.');
+				console.log('✅ tasks.yaml file updated.');
 			} else {
-				console.warn(
-					`⚠️  tasks.yaml에서 태스크 ID "${taskId}"를 찾을 수 없습니다.`
-				);
+				console.warn(`⚠️  Task ID "${taskId}" not found in tasks.yaml.`);
 			}
 		}
 	} catch (error) {
-		console.warn('⚠️  tasks.yaml 업데이트 중 오류 발생:', error);
+		console.warn('⚠️  Error updating tasks.yaml:', error);
 	}
 }
 
 export async function showTask(taskId: string): Promise<void> {
 	try {
-		console.log(`🔍 Task "${taskId}"의 구조와 prompt를 표시합니다...\n`);
+		console.log(
+			`🔍 Displaying structure and prompts for Task "${taskId}"...\n`
+		);
 
 		const taskConfigPath = path.join('.task-actions', `task-${taskId}.yaml`);
 
-		// 파일이 존재하는지 확인
+		// Check if file exists
 		try {
 			await fs.access(taskConfigPath);
 		} catch (error) {
-			console.error(`❌ Task 파일을 찾을 수 없습니다: ${taskConfigPath}`);
+			console.error(`❌ Task file not found: ${taskConfigPath}`);
 			return;
 		}
 
 		const taskConfigContent = await fs.readFile(taskConfigPath, 'utf-8');
 		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
 
-		// YAML 객체 구성
+		// Build YAML object
 		const yamlObject = await buildTaskYamlObject(taskConfig);
 
-		// YAML을 예쁘게 포맷팅해서 출력
+		// Format and output YAML prettily
 		const prettyYaml = yaml.dump(yamlObject, {
 			indent: 2,
 			flowLevel: -1,
@@ -362,18 +359,18 @@ export async function showTask(taskId: string): Promise<void> {
 		});
 
 		console.log('\n' + '='.repeat(80));
-		console.log('🎯 Task YAML 구조 (Prompt 포함)');
+		console.log('🎯 Task YAML Structure (Including Prompts)');
 		console.log('='.repeat(80));
 		console.log(prettyYaml);
 		console.log('='.repeat(80));
 	} catch (error) {
-		console.error('❌ Task 구조 표시 중 오류가 발생했습니다:', error);
+		console.error('❌ Error occurred while displaying task structure:', error);
 		throw error;
 	}
 }
 
 /**
- * Task 설정을 기반으로 YAML 객체를 구성합니다
+ * Build YAML object based on Task configuration
  */
 async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 	const yamlObject: any = {
@@ -385,12 +382,12 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 		jobs: {}
 	};
 
-	// description이 있는 경우에만 추가
+	// Add description only if it exists
 	if (taskConfig.description) {
 		yamlObject.description = taskConfig.description;
 	}
 
-	// Workflow prompt 수집 및 추가
+	// Collect and add workflow prompts
 	if (taskConfig.jobs.workflow) {
 		const workflowPrompts = await collectWorkflowPromptsOnly(
 			taskConfig.jobs.workflow
@@ -399,7 +396,7 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 		yamlObject.jobs.workflow = combinedWorkflowPrompt;
 	}
 
-	// Rules prompts 수집 및 추가
+	// Collect and add rules prompts
 	if (taskConfig.jobs.rules && taskConfig.jobs.rules.length > 0) {
 		yamlObject.jobs.rules = [];
 		for (const rulePath of taskConfig.jobs.rules) {
@@ -410,7 +407,7 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 		}
 	}
 
-	// MCPs prompts 수집 및 추가
+	// Collect and add MCPs prompts
 	if (taskConfig.jobs.mcps && taskConfig.jobs.mcps.length > 0) {
 		yamlObject.jobs.mcps = [];
 		for (const mcpPath of taskConfig.jobs.mcps) {
@@ -421,12 +418,12 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 		}
 	}
 
-	// systemprompt 추가
+	// Add systemprompt
 	if (taskConfig.systemprompt) {
 		yamlObject.systemprompt = taskConfig.systemprompt;
 	}
 
-	// prompt 추가
+	// Add prompt
 	yamlObject.prompt = taskConfig.prompt;
 
 	return yamlObject;

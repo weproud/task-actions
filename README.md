@@ -1,106 +1,106 @@
 # Task Actions CLI
 
-GitHub Actions와 유사한 태스크 자동화 시스템을 위한 CLI 도구입니다.
+A CLI tool for task automation systems similar to GitHub Actions.
 
-## ✨ 최근 업데이트 (리팩토링)
+## ✨ Recent Updates (Refactoring)
 
-### 🔧 주요 개선사항
+### 🔧 Major Improvements
 
-#### 1. **중복 코드 제거 및 재사용성 개선**
+#### 1. **Code Deduplication and Reusability Enhancement**
 
-- 반복되는 템플릿 생성 패턴을 `TemplateProcessor` 클래스로 통합
-- 템플릿 설정을 `template-config.ts`로 중앙화하여 관리
-- 파일 시스템 작업을 `FileSystemUtils`로 분리하여 재사용성 향상
+- Unified repetitive template generation patterns into `TemplateProcessor` class
+- Centralized template configuration management with `template-config.ts`
+- Separated file system operations into `FileSystemUtils` for improved reusability
 
-#### 2. **코드 단순화 (Simplification)**
+#### 2. **Code Simplification**
 
-- `YamlGenerator` 클래스의 복잡한 메서드들을 더 작고 이해하기 쉬운 단위로 분리
-- 중복된 `generate*` 메서드들을 공통 로직으로 통합
-- 에러 처리와 검증 로직을 별도 메서드로 추출
+- Split complex methods in `YamlGenerator` class into smaller, more understandable units
+- Unified duplicate `generate*` methods with common logic
+- Extracted error handling and validation logic into separate methods
 
-#### 3. **구조적 개선**
+#### 3. **Structural Improvements**
 
-- 관련 기능들을 논리적으로 그룹화:
-  - `FileSystemUtils`: 파일 시스템 작업
-  - `TemplateProcessor`: 템플릿 처리 로직
-  - `TemplateEngine`: 템플릿 엔진 기능 강화
-  - `template-config.ts`: 템플릿 설정 중앙화
-- 강력한 타입 안전성과 인터페이스 개선
-- 포괄적인 에러 처리 및 검증 로직
+- Logically grouped related functionalities:
+  - `FileSystemUtils`: File system operations
+  - `TemplateProcessor`: Template processing logic
+  - `TemplateEngine`: Enhanced template engine features
+  - `template-config.ts`: Centralized template configuration
+- Enhanced type safety and interface improvements
+- Comprehensive error handling and validation logic
 
-#### 4. **성능 최적화**
+#### 4. **Performance Optimization**
 
-- 불필요한 파일 시스템 접근 최소화
-- 메모리 사용량 최적화
-- 배치 처리를 통한 효율성 향상
+- Minimized unnecessary file system access
+- Optimized memory usage
+- Improved efficiency through batch processing
 
-### 🏗️ 새로운 아키텍처
+### 🏗️ New Architecture
 
 ```
 src/generator/
-├── index.ts              # 메인 YamlGenerator 클래스
-├── types.ts              # 강화된 타입 정의
-├── template-config.ts    # 중앙화된 템플릿 설정
-├── template-processor.ts # 템플릿 처리 로직
-├── template-engine.ts    # 향상된 템플릿 엔진
-└── file-system-utils.ts  # 파일 시스템 유틸리티
+├── index.ts              # Main YamlGenerator class
+├── types.ts              # Enhanced type definitions
+├── template-config.ts    # Centralized template configuration
+├── template-processor.ts # Template processing logic
+├── template-engine.ts    # Enhanced template engine
+└── file-system-utils.ts  # File system utilities
 ```
 
-### 📊 리팩토링 효과
+### 📊 Refactoring Results
 
-- **코드 중복 제거**: 각 `generate*` 메서드의 유사한 패턴 90% 감소
-- **유지보수성 향상**: 관심사 분리로 코드 이해도 및 수정 용이성 증대
-- **확장성 개선**: 새로운 템플릿 타입 추가가 설정 파일 수정만으로 가능
-- **에러 처리 강화**: 포괄적인 검증 및 상세한 에러 메시지 제공
-- **타입 안전성**: 강화된 TypeScript 타입으로 런타임 오류 방지
+- **Code Deduplication**: 90% reduction in similar patterns across `generate*` methods
+- **Improved Maintainability**: Enhanced code comprehension and modification ease through separation of concerns
+- **Better Extensibility**: Adding new template types now requires only configuration file modifications
+- **Enhanced Error Handling**: Comprehensive validation and detailed error messages
+- **Type Safety**: Strengthened TypeScript types to prevent runtime errors
 
 ---
 
-## 🚀 기능
+## 🚀 Features
 
-프로젝트에 GitHub Actions 스타일의 워크플로우, 액션, 규칙 등을 생성하고 관리할 수 있습니다.
+Generate and manage GitHub Actions-style workflows, actions, rules, and more for your projects.
 
-### 지원하는 템플릿 타입
+### Supported Template Types
 
-- **Actions**: 개별 작업 단위
-- **Workflows**: 액션들의 조합
-- **MCPs**: 모델 컨텍스트 프로토콜
-- **Rules**: 개발 규칙
-- **Tasks**: 프로젝트 작업
+- **Actions**: Individual task units
+- **Workflows**: Combinations of actions
+- **MCPs**: Model Context Protocol
+- **Rules**: Development rules
+- **Tasks**: Project tasks
 
-## 📦 설치
+## 📦 Installation
 
-### Global 설치 (권장)
+### Global Installation (Recommended)
 
 ```bash
 npm install -g task-actions-ai
 ```
 
-설치 후 어디서든 `task-actions` 명령어를 사용할 수 있습니다:
+After installation, you can use the `task-actions` command anywhere:
 
 ```bash
 task-actions --help
 ```
 
-### 로컬 개발용 설치
+### Local Development Installation
 
-프로젝트를 로컬에서 개발하거나 테스트하려면:
+To develop or test the project locally:
 
 ```bash
-# 저장소 클론
+# Clone repository
 git clone https://github.com/raiiz/task-actions.git
 cd task-actions
 
-# 의존성 설치
+# Install dependencies
 npm install
 
-# 빌드
+# Build
 npm run build
 
-# 로컬 링크 (개발용)
+# Local link (for development)
 npm link
 
-# 이제 task-actions 명령어 사용 가능
+# Now you can use task-actions command
 task-actions --help
 ```
 
@@ -150,7 +150,9 @@ cd mcp-server
    		"task-actions": {
    			"command": "node",
    			"args": ["/your/path/to/task-actions/mcp-server/dist/index.js"],
-   			"env": {},
+   			"env": {
+   				"SLACK_WEBHOOK_URL": ""
+   			},
    			"description": "Task Actions CLI를 위한 FastMCP 기반 MCP 서버"
    		}
    	}

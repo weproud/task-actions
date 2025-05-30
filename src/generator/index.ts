@@ -178,7 +178,7 @@ export class YamlGenerator {
 
 		const templates: TemplateMetadata[] = [];
 
-		// 각 템플릿 그룹에서 메타데이터 추출
+		// Extract metadata from each template group
 		const templateGroups = await getAllTemplateGroups();
 		for (const group of templateGroups) {
 			for (const templateConfig of group.templates) {
@@ -188,23 +188,23 @@ export class YamlGenerator {
 					templateConfig.filename
 				);
 
-				// 템플릿에서 필요한 변수 추출 (간단한 구현)
+				// Extract required variables from template (simple implementation)
 				const requiredVariables = this.extractVariablesFromTemplate(
-					templateConfig.template as any // 타입 호환성을 위한 캐스팅
+					templateConfig.template as any // Casting for type compatibility
 				);
 
 				templates.push({
 					type: group.type,
 					name: templateConfig.filename.replace('.yaml', ''),
-					description: `${group.displayName} 템플릿`,
-					templatePath: '', // TypeScript 템플릿이므로 경로 없음
+					description: `${group.displayName} template`,
+					templatePath: '', // No path since it's TypeScript template
 					outputPath,
 					requiredVariables
 				});
 			}
 		}
 
-		// 기존 파일 기반 템플릿도 스캔 (하위 호환성)
+		// Also scan existing file-based templates (backward compatibility)
 		const fileBasedTemplates = this.scanFileBasedTemplates();
 		templates.push(...fileBasedTemplates);
 
@@ -237,7 +237,7 @@ export class YamlGenerator {
 	}
 
 	/**
-	 * 템플릿에서 변수 추출 (간단한 구현)
+	 * Extract variables from template (simple implementation)
 	 */
 	private extractVariablesFromTemplate(template: YamlTemplate): string[] {
 		try {
@@ -249,7 +249,7 @@ export class YamlGenerator {
 	}
 
 	/**
-	 * 파일 기반 템플릿 스캔 (하위 호환성)
+	 * Scan file-based templates (backward compatibility)
 	 */
 	private scanFileBasedTemplates(): TemplateMetadata[] {
 		PerformanceUtils.startTimer('scanFileBasedTemplates');
@@ -262,7 +262,7 @@ export class YamlGenerator {
 			return templates;
 		}
 
-		// 각 타입별 디렉토리 스캔
+		// Scan directory for each type
 		const types: TemplateType[] = ['action', 'workflow', 'mcp', 'rule'];
 
 		for (const type of types) {
