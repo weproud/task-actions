@@ -1,0 +1,14 @@
+{
+	"mcpServers": {
+		"task-actions": {
+			"command": "node",
+			"args": [
+				"/Users/raiz/labs/workspace/task-actions/mcp-server/dist/mcp-server/src/index.js"
+			],
+			"env": {
+				"SLACK_WEBHOOK_URL": "YOUR_SLACK_WEBHOOK_URL_HERE"
+			},
+			"description": "Task Actions MCP Server - GitHub Actions 스타일의 개발 워크플로우를 관리하는 AI 어시스턴트"
+		}
+	}
+}

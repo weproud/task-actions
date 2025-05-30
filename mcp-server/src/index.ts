@@ -39,33 +39,78 @@ server.addTool({
 	name: 'start_task',
 	description: '지정된 task ID의 태스크를 시작합니다',
 	parameters: z.object({
-		taskId: z.string().describe('시작할 태스크 ID'),
-		output: z.string().optional().describe('YAML 구조를 파일로 저장할 경로'),
-		clipboard: z
-			.boolean()
-			.optional()
-			.default(false)
-			.describe('YAML 구조를 클립보드에 복사 (macOS만 지원)')
+		taskId: z.string().describe('시작할 태스크 ID')
 	}),
 	execute: async (args) => {
-		return await tools.startTask(args.taskId, args.output, args.clipboard);
+		return await tools.startTask(args.taskId);
 	}
 });
 
-// 서버 이벤트 리스너
-server.on('connect', (event) => {
-	console.log('🔗 클라이언트가 연결되었습니다:', event.session);
+// Slack 메시지 전송 도구
+server.addTool({
+	name: 'send_slack_message',
+	description: 'Slack으로 메시지를 전송합니다',
+	parameters: z.object({
+		message: z.string().describe('전송할 메시지'),
+		channel: z.string().optional().describe('전송할 채널 (선택사항)')
+	}),
+	execute: async (args) => {
+		return await tools.sendSlackMessage(args.message, args.channel);
+	}
 });
 
-server.on('disconnect', (event) => {
-	console.log('📪 클라이언트가 연결 해제되었습니다:', event.session);
+// 풍부한 형식의 Slack 메시지 전송 도구
+server.addTool({
+	name: 'send_rich_slack_message',
+	description: '풍부한 형식(첨부파일 포함)의 Slack 메시지를 전송합니다',
+	parameters: z.object({
+		text: z.string().describe('메시지 텍스트'),
+		title: z.string().optional().describe('첨부파일 제목'),
+		color: z
+			.string()
+			.optional()
+			.describe('첨부파일 색상 (good, warning, danger 또는 hex)'),
+		fields: z
+			.array(
+				z.object({
+					title: z.string().describe('필드 제목'),
+					value: z.string().describe('필드 값'),
+					short: z.boolean().optional().describe('짧은 형식 표시 여부')
+				})
+			)
+			.optional()
+			.describe('추가 필드들')
+	}),
+	execute: async (args) => {
+		return await tools.sendRichSlackMessage(
+			args.text,
+			args.title,
+			args.color,
+			args.fields as
+				| Array<{ title: string; value: string; short?: boolean }>
+				| undefined
+		);
+	}
 });
 
-// 서버 시작
-console.log('🚀 Task Actions FastMCP 서버를 시작합니다...');
+// 태스크 완료 알림 도구
+server.addTool({
+	name: 'send_task_completion_notification',
+	description: '태스크 완료 알림을 Slack으로 전송합니다',
+	parameters: z.object({
+		taskId: z.string().describe('완료된 태스크 ID'),
+		taskName: z.string().describe('완료된 태스크 이름'),
+		projectName: z.string().optional().describe('프로젝트 이름 (선택사항)')
+	}),
+	execute: async (args) => {
+		return await tools.sendTaskCompletionNotification(
+			args.taskId,
+			args.taskName,
+			args.projectName
+		);
+	}
+});
 
 server.start({
 	transportType: 'stdio'
 });
-
-console.log('✅ 서버가 성공적으로 시작되었습니다!');

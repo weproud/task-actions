@@ -1,0 +1,33 @@
+{
+	"mcpServers": {
+		"task-actions-local": {
+			"command": "node",
+			"args": [
+				"/Users/raiz/labs/workspace/task-actions/mcp-server/dist/mcp-server/src/index.js"
+			],
+			"env": {
+				"SLACK_WEBHOOK_URL": "YOUR_SLACK_WEBHOOK_URL_HERE"
+			},
+			"description": "Task Actions MCP Server (로컬 빌드 버전)"
+		},
+		"task-actions-tsx": {
+			"command": "npx",
+			"args": [
+				"tsx",
+				"/Users/raiz/labs/workspace/task-actions/mcp-server/src/index.ts"
+			],
+			"env": {
+				"SLACK_WEBHOOK_URL": "YOUR_SLACK_WEBHOOK_URL_HERE"
+			},
+			"description": "Task Actions MCP Server (TypeScript 직접 실행)"
+		},
+		"task-actions-npm": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/task-actions"],
+			"env": {
+				"SLACK_WEBHOOK_URL": "YOUR_SLACK_WEBHOOK_URL_HERE"
+			},
+			"description": "Task Actions MCP Server (npm 패키지 버전)"
+		}
+	}
+}

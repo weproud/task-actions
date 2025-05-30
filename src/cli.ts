@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import { MESSAGES } from './core/constants.js';
+import { ErrorHandler } from './core/error-handler.js';
 import {
 	checkProjectStatus,
 	cleanProject,
@@ -13,10 +15,8 @@ import {
 	showTask,
 	startTask,
 	validateProject
-} from './core';
-import { MESSAGES } from './core/constants';
-import { ErrorHandler } from './core/error-handler';
-import { TemplateType } from './generator';
+} from './core/index.js';
+import { TemplateType } from './generator/index.js';
 
 const program = new Command();
 

@@ -1,18 +1,15 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-// TypeScript에서 __dirname 사용하기 위한 설정
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // 상위 디렉토리의 core 모듈들을 import
 import {
 	checkProjectStatus,
 	cleanProject,
+	sendSlackMessage as coreSlackMessage,
 	generateByType,
 	generateTask,
 	initProject,
 	listTemplates,
+	notifyTaskCompletion,
 	startTask,
 	validateProject
 } from '../../src/core/index.js';
@@ -21,6 +18,8 @@ import type {
 	ListTemplatesOptions,
 	StatusOptions
 } from '../../src/core/index.js';
+
+import type { SlackMessage } from '../../src/core/utils.js';
 
 export class TaskActionsTools {
 	private readonly originalCwd: string;
@@ -183,6 +182,77 @@ export class TaskActionsTools {
 			return `✅ 태스크 "${taskId}"가 성공적으로 시작되었습니다!`;
 		} catch (error) {
 			return this.handleError('태스크 시작', error);
+		}
+	}
+
+	async sendSlackMessage(message: string, channel?: string): Promise<string> {
+		try {
+			const slackMessage: SlackMessage = {
+				text: message,
+				username: 'Task Actions Bot',
+				icon_emoji: ':robot_face:',
+				...(channel && { channel })
+			};
+
+			const result = await coreSlackMessage(slackMessage);
+
+			if (result.success) {
+				return '✅ Slack 메시지가 성공적으로 전송되었습니다!';
+			} else {
+				return `❌ Slack 메시지 전송 실패: ${result.error}`;
+			}
+		} catch (error) {
+			return this.handleError('Slack 메시지 전송', error);
+		}
+	}
+
+	async sendTaskCompletionNotification(
+		taskId: string,
+		taskName: string,
+		projectName?: string
+	): Promise<string> {
+		try {
+			const result = await notifyTaskCompletion(taskId, taskName, projectName);
+
+			if (result.success) {
+				return `✅ 태스크 "${taskId}" 완료 알림이 Slack으로 전송되었습니다!`;
+			} else {
+				return `❌ 태스크 완료 알림 전송 실패: ${result.error}`;
+			}
+		} catch (error) {
+			return this.handleError('태스크 완료 알림 전송', error);
+		}
+	}
+
+	async sendRichSlackMessage(
+		text: string,
+		title?: string,
+		color?: string,
+		fields?: Array<{ title: string; value: string; short?: boolean }>
+	): Promise<string> {
+		try {
+			const slackMessage: SlackMessage = {
+				text,
+				username: 'Task Actions Bot',
+				icon_emoji: ':white_check_mark:',
+				attachments: [
+					{
+						color: color || 'good',
+						title: title || '알림',
+						...(fields && fields.length > 0 && { fields })
+					}
+				]
+			};
+
+			const result = await coreSlackMessage(slackMessage);
+
+			if (result.success) {
+				return '✅ 풍부한 형식의 Slack 메시지가 성공적으로 전송되었습니다!';
+			} else {
+				return `❌ Slack 메시지 전송 실패: ${result.error}`;
+			}
+		} catch (error) {
+			return this.handleError('풍부한 형식의 Slack 메시지 전송', error);
 		}
 	}
 }
