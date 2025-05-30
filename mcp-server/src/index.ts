@@ -40,12 +40,12 @@ server.addTool({
 	description: '지정된 task ID의 태스크를 시작합니다',
 	parameters: z.object({
 		taskId: z.string().describe('시작할 태스크 ID'),
-		output: z.string().optional().describe('Prompt를 파일로 저장할 경로'),
+		output: z.string().optional().describe('YAML 구조를 파일로 저장할 경로'),
 		clipboard: z
 			.boolean()
 			.optional()
 			.default(false)
-			.describe('Prompt를 클립보드에 복사 (macOS만 지원)')
+			.describe('YAML 구조를 클립보드에 복사 (macOS만 지원)')
 	}),
 	execute: async (args) => {
 		return await tools.startTask(args.taskId, args.output, args.clipboard);

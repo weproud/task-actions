@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { TemplateType } from './generator';
 import {
-	initProject,
+	checkProjectStatus,
+	cleanProject,
+	completeTask,
 	generateByType,
 	generateTask,
-	checkProjectStatus,
-	validateProject,
-	cleanProject,
-	printNextSteps,
+	initProject,
 	listTemplates,
+	printNextSteps,
+	showTask,
 	startTask,
-	completeTask
+	validateProject
 } from './core';
 import { MESSAGES } from './core/constants';
 import { ErrorHandler } from './core/error-handler';
+import { TemplateType } from './generator';
 
 const program = new Command();
 
@@ -147,6 +148,24 @@ program
 			await cleanProject(options);
 		} catch (error) {
 			ErrorHandler.handleCliError('정리', error, debugMode);
+		}
+	});
+
+// show 명령어 그룹
+const showCmd = program
+	.command('show')
+	.description('태스크와 템플릿 정보를 조회합니다');
+
+// show task 명령어
+showCmd
+	.command('task')
+	.description('지정된 task ID의 템플릿 구성을 확인합니다')
+	.argument('<task-id>', '확인할 태스크 ID')
+	.action(async (taskId) => {
+		try {
+			await showTask(taskId);
+		} catch (error) {
+			ErrorHandler.handleCliError('태스크 정보 조회', error, debugMode);
 		}
 	});
 

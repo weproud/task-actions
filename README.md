@@ -239,27 +239,34 @@ task-actions add task "새로운 기능 개발" "사용자 인증 기능을 구�
 ### 태스크 시작 및 개발용 Prompt 생성
 
 ```bash
-# 기본 prompt 출력
+# 기본 YAML 구조 출력
 task-actions start task <task-id>
 
-# Prompt를 파일로 저장
-task-actions start task <task-id> --output prompt.md
+# YAML 구조를 파일로 저장
+task-actions start task <task-id> --output task-structure.yaml
 
-# Prompt를 클립보드에 복사 (macOS만 지원)
+# YAML 구조를 클립보드에 복사 (macOS만 지원)
 task-actions start task <task-id> --clipboard
 
 # 파일 저장과 클립보드 복사 동시 실행
-task-actions start task <task-id> --output prompt.md --clipboard
+task-actions start task <task-id> --output task-structure.yaml --clipboard
 ```
 
-이 명령어는 task-jwt-provider.yaml 파일을 읽어서:
+이 명령어는 task-jwt-provider.yaml 파일을 읽어서 Task YAML 구조와 동일한 형태로 출력하되, 참조되는 파일들(workflow, rules, mcps)의 순수한 prompt 내용만 표시합니다:
 
 - Task의 기본 정보와 요구사항
-- Workflow의 각 단계별 prompt (uses 파일들을 재귀적으로 수집)
-- Rules에 정의된 개발 규칙
-- MCPs의 활용 가이드
+- Workflow의 각 단계별 prompt (헤더 없는 순수 내용)
+- Rules에 정의된 개발 규칙 (헤더 없는 순수 내용)
+- MCPs의 활용 가이드 (헤더 없는 순수 내용)
 
-를 통합하여 개발용 통합 Prompt를 생성합니다.
+#### Task 구조 조회
+
+```bash
+# Task YAML 구조 형태로 prompt 조회
+task-actions show task <task-id>
+```
+
+이 명령어는 Task YAML 파일과 동일한 구조로 출력하되, 참조 파일들의 순수한 prompt 내용만 표시합니다.
 
 ### 태스크 완료 및 알림 전송
 

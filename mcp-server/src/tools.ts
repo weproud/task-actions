@@ -7,21 +7,20 @@ const __dirname = path.dirname(__filename);
 
 // 상위 디렉토리의 core 모듈들을 import
 import {
-	initProject,
+	checkProjectStatus,
+	cleanProject,
 	generateByType,
 	generateTask,
-	checkProjectStatus,
-	validateProject,
-	cleanProject,
+	initProject,
 	listTemplates,
-	startTask
+	startTask,
+	validateProject
 } from '../../src/core/index.js';
 
-import type { TemplateType } from '../../src/generator/index.js';
 import type {
-	StatusOptions,
 	CleanOptions,
-	ListTemplatesOptions
+	ListTemplatesOptions,
+	StatusOptions
 } from '../../src/core/index.js';
 
 export class TaskActionsTools {
