@@ -1,4 +1,4 @@
-import { sendSlackMessage } from './src/core/utils';
+import { sendSlackMessage } from '../src/core/utils';
 
 // 제공된 Slack Webhook URL
 const SLACK_WEBHOOK_URL =

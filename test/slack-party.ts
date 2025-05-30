@@ -1,4 +1,4 @@
-import { sendSlackMessage } from './src/core/utils';
+import { sendSlackMessage } from '../src/core/utils';
 
 const SLACK_WEBHOOK_URL =
 	'https://hooks.slack.com/services/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';

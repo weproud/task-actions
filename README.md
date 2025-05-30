@@ -104,45 +104,45 @@ npm link
 task-actions --help
 ```
 
-## 🤖 MCP 서버 (AI 어시스턴트 연동) - FastMCP 기반
+## 🤖 MCP Server (AI Assistant Integration) - FastMCP Based
 
-Task Actions CLI를 Claude Desktop과 같은 AI 어시스턴트와 연동하여 사용할 수 있는 **FastMCP 기반** Model Context Protocol (MCP) 서버를 제공합니다.
+Provides a **FastMCP-based** Model Context Protocol (MCP) server that allows Task Actions CLI to be integrated with AI assistants like Claude Desktop.
 
-### ✨ **FastMCP 2.0 업그레이드**
+### ✨ **FastMCP 2.0 Upgrade**
 
-- **기존**: `@modelcontextprotocol/sdk` 기반
-- **새로운**: `fastmcp` 기반 (TypeScript 프레임워크)
-- **개선사항**:
-  - Zod 스키마를 통한 자동 타입 안전성
-  - 더 간단한 도구 정의와 적은 보일러플레이트
-  - 내장 이벤트 시스템
-  - 향상된 개발자 경험 (`fastmcp dev`, `fastmcp inspect`)
+- **Previous**: Based on `@modelcontextprotocol/sdk`
+- **New**: Based on `fastmcp` (TypeScript framework)
+- **Improvements**:
+  - Automatic type safety through Zod schemas
+  - Simpler tool definitions with less boilerplate
+  - Built-in event system
+  - Enhanced developer experience (`fastmcp dev`, `fastmcp inspect`)
 
-### 🔧 MCP 서버 설치
+### 🔧 MCP Server Installation
 
 ```bash
 cd mcp-server
 ./install.sh
 ```
 
-설치 스크립트가 자동으로:
+The installation script automatically:
 
-1. 부모 프로젝트와 MCP 서버를 빌드
-2. FastMCP 의존성 설치
-3. Claude Desktop 설정 파일 예제를 생성
-4. 설정 방법을 안내
+1. Builds the parent project and MCP server
+2. Installs FastMCP dependencies
+3. Generates Claude Desktop configuration file examples
+4. Guides you through the setup process
 
-### ⚡ 빠른 설정 (Claude Desktop)
+### ⚡ Quick Setup (Claude Desktop)
 
-1. **Claude Desktop 종료**
-2. **설정 파일 편집** (macOS):
+1. **Exit Claude Desktop**
+2. **Edit configuration file** (macOS):
 
    ```bash
-   # 설정 파일 열기
+   # Open configuration file
    open ~/Library/Application\ Support/Claude/claude_desktop_config.json
    ```
 
-   다음 내용 추가:
+   Add the following content:
 
    ```json
    {
@@ -153,89 +153,89 @@ cd mcp-server
    				"/Users/raiiz/labs/workspace/task-actions/mcp-server/dist/index.js"
    			],
    			"env": {},
-   			"description": "Task Actions AI - 로컬 개발용 MCP 서버"
+   			"description": "Task Actions AI - Local development MCP server"
    		}
    	}
    }
    ```
 
-3. **Claude Desktop 재시작**
+3. **Restart Claude Desktop**
 
-### 🧪 개발 및 테스트
+### 🧪 Development and Testing
 
-FastMCP의 강력한 개발 도구를 활용하세요:
+Leverage FastMCP's powerful development tools:
 
 ```bash
 cd mcp-server
 
-# 대화형 개발 서버
+# Interactive development server
 npm run dev
 
-# 웹 인터페이스로 테스트
+# Test with web interface
 npm run inspect
 
-# 일반 실행
+# Regular execution
 npm start
 ```
 
-### 🎯 AI 어시스턴트에서 사용 예시
+### 🎯 Usage Examples in AI Assistant
 
-Claude Desktop에서 다음과 같이 대화할 수 있습니다:
+You can interact with Claude Desktop as follows:
 
 ```
-사용자: "새로운 task-actions 프로젝트를 초기화해 주세요."
-Claude: init_project 도구를 사용하여 프로젝트를 초기화하겠습니다.
+User: "Please initialize a new task-actions project."
+Claude: I'll initialize the project using the init_project tool.
 
-사용자: "action 템플릿을 생성해 주세요."
-Claude: add_action 도구를 사용하여 액션 파일들을 생성하겠습니다.
+User: "Please generate action templates."
+Claude: I'll generate action files using the add_action tool.
 
-사용자: "user-auth라는 태스크를 만들어주세요."
-Claude: add_task 도구를 사용하여 사용자 인증 태스크를 생성하겠습니다.
+User: "Please create a task called user-auth."
+Claude: I'll create a user authentication task using the add_task tool.
 ```
 
-### 🔍 제공되는 MCP Tools
+### 🔍 Available MCP Tools
 
-| Tool               | 설명                 | 매개변수                              |
-| ------------------ | -------------------- | ------------------------------------- |
-| `init_project`     | 프로젝트 초기화      | 없음                                  |
-| `add_action`       | Action 템플릿 생성   | 없음                                  |
-| `add_workflow`     | Workflow 템플릿 생성 | 없음                                  |
-| `add_mcp`          | MCP 템플릿 생성      | 없음                                  |
-| `add_rule`         | Rule 템플릿 생성     | 없음                                  |
-| `add_task`         | 새 태스크 생성       | `taskId`, `taskName?`, `description?` |
-| `list_templates`   | 템플릿 목록 조회     | `type?`                               |
-| `check_status`     | 프로젝트 상태 확인   | `detailed?`                           |
-| `validate_project` | 프로젝트 검증        | 없음                                  |
-| `clean_project`    | 프로젝트 정리        | `force?`                              |
-| `start_task`       | 태스크 시작          | `taskId`, `output?`, `clipboard?`     |
+| Tool               | Description                 | Parameters                            |
+| ------------------ | --------------------------- | ------------------------------------- |
+| `init_project`     | Initialize project          | None                                  |
+| `add_action`       | Generate Action templates   | None                                  |
+| `add_workflow`     | Generate Workflow templates | None                                  |
+| `add_mcp`          | Generate MCP templates      | None                                  |
+| `add_rule`         | Generate Rule templates     | None                                  |
+| `add_task`         | Create new task             | `taskId`, `taskName?`, `description?` |
+| `list_templates`   | List available templates    | `type?`                               |
+| `check_status`     | Check project status        | `detailed?`                           |
+| `validate_project` | Validate project            | None                                  |
+| `clean_project`    | Clean project               | `force?`                              |
+| `start_task`       | Start task                  | `taskId`, `output?`, `clipboard?`     |
 
-자세한 MCP 서버 설정 및 사용법은 [`mcp-server/README.md`](./mcp-server/README.md)를 참조하세요.
+For detailed MCP server setup and usage, refer to [`mcp-server/README.md`](./mcp-server/README.md).
 
-## 🔧 사용법
+## 🔧 Usage
 
-### 프로젝트 초기화
+### Project Initialization
 
 ```bash
 task-actions init
 ```
 
-### 특정 타입 생성
+### Generate Specific Types
 
 ```bash
-# 액션 파일들만 생성
+# Generate only action files
 task-actions generate action
 
-# 워크플로우 파일들만 생성
+# Generate only workflow files
 task-actions generate workflow
 
-# MCP 파일들만 생성
+# Generate only MCP files
 task-actions generate mcp
 ```
 
-### 새로운 태스크 생성
+### Create New Task
 
 ```bash
-task-actions add task "새로운 기능 개발" "사용자 인증 기능을 구현합니다"
+task-actions add task "new-feature-development" "Implement user authentication feature"
 ```
 
 ### Task Start and Development Prompt Generation
@@ -296,13 +296,13 @@ When task is completed, automatically:
 - Send completion notification to Slack if SLACK_WEBHOOK_URL is configured
 - Send completion notification to Discord if DISCORD_WEBHOOK_URL is configured
 
-### Slack 및 Discord 연동 설정
+### Slack and Discord Integration Setup
 
-#### 1. 환경변수 설정
+#### 1. Environment Variable Configuration
 
-MCP 서버 설정에서 환경변수를 추가하세요:
+Add environment variables in the MCP server configuration:
 
-**Claude Desktop 설정 (claude_desktop_config.json):**
+**Claude Desktop Configuration (claude_desktop_config.json):**
 
 ```json
 {
@@ -320,24 +320,24 @@ MCP 서버 설정에서 환경변수를 추가하세요:
 }
 ```
 
-#### 2. Slack Webhook URL 생성
+#### 2. Creating Slack Webhook URL
 
-1. [Slack API](https://api.slack.com/apps)에서 새 앱 생성
-2. "Incoming Webhooks" 기능 활성화
-3. 채널을 선택하고 Webhook URL 생성
-4. 생성된 URL을 `SLACK_WEBHOOK_URL` 환경변수에 설정
+1. Create a new app at [Slack API](https://api.slack.com/apps)
+2. Enable "Incoming Webhooks" feature
+3. Select a channel and generate Webhook URL
+4. Set the generated URL to `SLACK_WEBHOOK_URL` environment variable
 
-#### 3. Discord Webhook URL 생성
+#### 3. Creating Discord Webhook URL
 
-1. Discord 서버에서 알림을 받을 채널을 선택
-2. 채널 설정 → 연동 → 웹후크 → 새 웹후크 생성
-3. 웹후크 이름과 아바타 설정 (선택사항)
-4. "웹후크 URL 복사"를 클릭하여 URL 획득
-5. 생성된 URL을 `DISCORD_WEBHOOK_URL` 환경변수에 설정
+1. Select the channel to receive notifications in your Discord server
+2. Channel Settings → Integrations → Webhooks → Create New Webhook
+3. Set webhook name and avatar (optional)
+4. Click "Copy Webhook URL" to get the URL
+5. Set the generated URL to `DISCORD_WEBHOOK_URL` environment variable
 
-#### 4. 메시지 전송 예시
+#### 4. Message Sending Examples
 
-프로그래밍 방식으로 알림을 보낼 수도 있습니다:
+You can also send notifications programmatically:
 
 ```typescript
 import {
