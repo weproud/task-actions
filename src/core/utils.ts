@@ -1,47 +1,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { FileSystemUtils } from '../generator';
+import { PackageJsonReader } from './package-json-reader';
 
 /**
  * 기본 프로젝트 이름 가져오기
  */
 export function getDefaultProjectName(): string {
-	const currentDir = process.cwd();
-	const packageJsonPath = path.join(currentDir, 'package.json');
-
-	if (FileSystemUtils.fileExists(packageJsonPath)) {
-		try {
-			const packageJson = JSON.parse(FileSystemUtils.readFile(packageJsonPath));
-			return packageJson.name || path.basename(currentDir);
-		} catch (error) {
-			console.warn('package.json 파일 읽기 실패, 기본값 사용');
-		}
-	}
-
-	return path.basename(currentDir);
+	return PackageJsonReader.getProjectName();
 }
 
 /**
  * 기본 작성자 가져오기
  */
 export function getDefaultAuthor(): string {
-	const currentDir = process.cwd();
-	const packageJsonPath = path.join(currentDir, 'package.json');
-
-	if (FileSystemUtils.fileExists(packageJsonPath)) {
-		try {
-			const packageJson = JSON.parse(FileSystemUtils.readFile(packageJsonPath));
-			return packageJson.author || 'Developer';
-		} catch (error) {
-			console.warn('package.json 파일 읽기 실패, 기본값 사용');
-		}
-	}
-
-	return 'Developer';
+	return PackageJsonReader.getAuthor();
 }
 
 /**
- * 디렉토리 구조 출력
+ * Print directory structure
  */
 export function printDirectoryTree(dirPath: string, prefix: string = ''): void {
 	if (!FileSystemUtils.fileExists(dirPath)) {
@@ -64,7 +41,7 @@ export function printDirectoryTree(dirPath: string, prefix: string = ''): void {
 			}
 		});
 	} catch (error) {
-		console.log(`${prefix}❌ 읽기 오류`);
+		console.log(`${prefix}❌ Read error`);
 	}
 }
 

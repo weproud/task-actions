@@ -244,32 +244,6 @@ export class FileSystemUtils {
 	}
 
 	/**
-	 * 하위 호환성을 위한 메서드들
-	 */
-
-	/**
-	 * @deprecated writeYamlFile을 사용하세요
-	 */
-	static saveYamlFile(
-		content: Record<string, unknown>,
-		outputPath: string,
-		overwrite: boolean = false
-	): FileGenerationResult {
-		return this.writeYamlFile(outputPath, content, overwrite);
-	}
-
-	/**
-	 * @deprecated createDirectoryStructure를 사용하세요
-	 */
-	static createDirectories(
-		baseDir: string,
-		directories: DirectoryConfig[]
-	): void {
-		console.log('📁 디렉토리 구조를 생성합니다...');
-		this.createDirectoryStructure(baseDir, directories);
-	}
-
-	/**
 	 * 출력 경로 생성
 	 */
 	static createOutputPath(

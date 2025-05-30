@@ -91,12 +91,12 @@ export async function startTask(taskId: string): Promise<void> {
 		});
 
 		console.log('\n' + '='.repeat(80));
-		console.log('🎯 Task YAML 구조 (Prompt 포함)');
+		console.log('🎯 Task YAML Structure (Including Prompt)');
 		console.log('='.repeat(80));
 		console.log(yamlOutput);
 		console.log('='.repeat(80));
 	} catch (error) {
-		console.error('❌ Task 시작 중 오류가 발생했습니다:', error);
+		console.error('❌ Error occurred while starting task:', error);
 		throw error;
 	}
 }
@@ -113,19 +113,19 @@ async function collectWorkflowPromptsOnly(
 			workflowContent
 		) as WorkflowConfig;
 
-		// Workflow 자체의 설명만 추가 (헤더 없이)
+		// Add only workflow description (without header)
 		prompts.push(workflowConfig.description);
 
-		// 각 step에서 uses 또는 prompt가 있는 경우 재귀적으로 수집
+		// Recursively collect from each step that has uses or prompt
 		for (const step of workflowConfig.jobs.steps) {
 			if (step.uses) {
-				// uses에 지정된 action 파일의 prompt 수집 (헤더 없이)
+				// Collect prompt from action file specified in uses (without header)
 				const actionPrompt = await collectActionPromptOnly(step.uses);
 				if (actionPrompt) {
 					prompts.push(actionPrompt);
 				}
 			} else if (step.prompt) {
-				// 직접 지정된 prompt 파일 수집 (헤더 없이)
+				// Collect directly specified prompt file (without header)
 				const actionPrompt = await collectActionPromptOnly(step.prompt);
 				if (actionPrompt) {
 					prompts.push(actionPrompt);

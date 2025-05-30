@@ -104,12 +104,12 @@ export class YamlGenerator {
 			const enhancedStats = PerformanceUtils.enhanceStats(stats, duration);
 
 			this.printEnhancedStats(enhancedStats);
-			console.log(`✅ ${type} 파일 생성 완료!`);
+			console.log(`✅ ${type} file generation completed!`);
 
 			return enhancedStats;
 		} catch (error) {
 			PerformanceUtils.endTimer(`generateByType-${type}`);
-			console.error(`❌ ${type} 파일 생성 중 오류가 발생했습니다:`, error);
+			console.error(`❌ Error occurred during ${type} file generation:`, error);
 			throw error;
 		}
 	}
@@ -122,7 +122,7 @@ export class YamlGenerator {
 		taskName: string,
 		taskDescription: string
 	): Promise<void> {
-		console.log(`📄 태스크 파일을 생성합니다: ${taskName}`);
+		console.log(`📄 Generating task file: ${taskName}`);
 
 		PerformanceUtils.startTimer(`generateTask-${taskId}`);
 
@@ -190,7 +190,7 @@ export class YamlGenerator {
 
 				// Extract required variables from template (simple implementation)
 				const requiredVariables = this.extractVariablesFromTemplate(
-					templateConfig.template as any // Casting for type compatibility
+					templateConfig.template as any
 				);
 
 				templates.push({
@@ -217,7 +217,7 @@ export class YamlGenerator {
 	 * 출력 디렉토리 구조 생성
 	 */
 	private createDirectoryStructure(): void {
-		FileSystemUtils.createDirectories(
+		FileSystemUtils.createDirectoryStructure(
 			this.options.outputDir,
 			getDirectoryConfig()
 		);
@@ -237,11 +237,25 @@ export class YamlGenerator {
 	}
 
 	/**
+	 * Check if template is YamlTemplate type
+	 */
+	private isYamlTemplate(template: any): template is YamlTemplate {
+		return template && typeof template === 'object' && 'content' in template;
+	}
+
+	/**
 	 * Extract variables from template (simple implementation)
 	 */
-	private extractVariablesFromTemplate(template: YamlTemplate): string[] {
+	private extractVariablesFromTemplate(template: any): string[] {
 		try {
-			const templateStr = JSON.stringify(template.content);
+			let templateStr: string;
+
+			if (this.isYamlTemplate(template)) {
+				templateStr = JSON.stringify(template.content);
+			} else {
+				templateStr = JSON.stringify(template);
+			}
+
 			return TemplateEngine.extractVariables(templateStr);
 		} catch {
 			return [];
@@ -312,7 +326,6 @@ export class YamlGenerator {
 		try {
 			const templateGroups = await getAllTemplateGroups();
 			let totalTemplates = 0;
-			let totalGroups = templateGroups.length;
 
 			// 각 그룹의 템플릿 수 계산
 			for (const group of templateGroups) {

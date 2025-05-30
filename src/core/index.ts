@@ -54,3 +54,5 @@ export {
 } from './constants';
 export { ErrorHandler } from './error-handler';
 export { YamlParser } from './yaml-parser';
+export { PackageJsonReader } from './package-json-reader';
+export { GeneratorFactory } from './generator-factory';

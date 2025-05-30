@@ -62,9 +62,9 @@ export class TemplateProcessor {
 		const processedContent = this.replaceTemplateVariables(content, variables);
 
 		// YAML 파일로 저장
-		return FileSystemUtils.saveYamlFile(
-			processedContent,
+		return FileSystemUtils.writeYamlFile(
 			outputPath,
+			processedContent,
 			overwrite
 		);
 	}

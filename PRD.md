@@ -1,32 +1,32 @@
 # task actions
 
-task actions는 task-master ai에 영감을 받아 만들어진 프로젝트야.
-task-master를 통한 task관리를 github actions 방식으로 재구성해서
-개발 생산성을 높이는 mcp야.
+Task Actions is a project inspired by task-master AI.
+It's an MCP that enhances development productivity by restructuring
+task management through task-master in a GitHub Actions style.
 
 ## task-actions cli
 
 1. task-actions init
 
-- task-actions의 기본 template을 제공한다.
+- Provides basic templates for task-actions.
 
 2. task-actions add task
 
-- 개발의 기본단위가 되는 task template을 제공한다.
+- Provides task templates that serve as the basic unit of development.
 
 3. task-actions add rule
 
-- task-actions의 rule을 추가한다.
+- Adds rules for task-actions.
 
 4. task-actions add mcp
 
-- task-actions의 mcp를 추가한다.
+- Adds MCPs for task-actions.
 
 5. task-actions add workflow
 
-- task-actions의 workflow를 추가한다.
+- Adds workflows for task-actions.
 
-## templates 기본 디렉토리 구조
+## templates basic directory structure
 
 ```
 src/templates/
@@ -60,7 +60,7 @@ src/templates/
     └── feature-development.ts         # 기능 개발 워크플로우 템플릿
 ```
 
-## task-actions 기본 디렉토리 구조
+## task-actions basic directory structure
 
 ```
 .task-actions

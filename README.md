@@ -238,63 +238,63 @@ task-actions generate mcp
 task-actions add task "새로운 기능 개발" "사용자 인증 기능을 구현합니다"
 ```
 
-### 태스크 시작 및 개발용 Prompt 생성
+### Task Start and Development Prompt Generation
 
 ```bash
-# 기본 YAML 구조 출력
+# Output basic YAML structure
 task-actions start task <task-id>
 
-# YAML 구조를 파일로 저장
+# Save YAML structure to file
 task-actions start task <task-id> --output task-structure.yaml
 
-# YAML 구조를 클립보드에 복사 (macOS만 지원)
+# Copy YAML structure to clipboard (macOS only)
 task-actions start task <task-id> --clipboard
 
-# 파일 저장과 클립보드 복사 동시 실행
+# Save to file and copy to clipboard simultaneously
 task-actions start task <task-id> --output task-structure.yaml --clipboard
 ```
 
-이 명령어는 task-jwt-provider.yaml 파일을 읽어서 Task YAML 구조와 동일한 형태로 출력하되, 참조되는 파일들(workflow, rules, mcps)의 순수한 prompt 내용만 표시합니다:
+This command reads the task-jwt-provider.yaml file and outputs it in the same format as the Task YAML structure, displaying only the pure prompt content of referenced files (workflow, rules, mcps):
 
-- Task의 기본 정보와 요구사항
-- Workflow의 각 단계별 prompt (헤더 없는 순수 내용)
-- Rules에 정의된 개발 규칙 (헤더 없는 순수 내용)
-- MCPs의 활용 가이드 (헤더 없는 순수 내용)
+- Basic information and requirements of the Task
+- Step-by-step prompts from Workflow (pure content without headers)
+- Development rules defined in Rules (pure content without headers)
+- Usage guides for MCPs (pure content without headers)
 
-#### Task 구조 조회
+#### Task Structure Query
 
 ```bash
-# Task YAML 구조 형태로 prompt 조회
+# Query prompts in Task YAML structure format
 task-actions show task <task-id>
 ```
 
-이 명령어는 Task YAML 파일과 동일한 구조로 출력하되, 참조 파일들의 순수한 prompt 내용만 표시합니다.
+This command outputs in the same structure as the Task YAML file, displaying only the pure prompt content of referenced files.
 
-### 태스크 완료 및 알림 전송
+### Task Completion and Notification Sending
 
 ```bash
-# 태스크를 완료로 표시하고 Slack, Discord 알림 전송
+# Mark task as completed and send Slack, Discord notifications
 task-actions done <task-id>
 
-# Slack 알림 없이 태스크만 완료 처리
+# Complete task only without Slack notification
 task-actions done <task-id> --skip-slack
 
-# Discord 알림 없이 태스크만 완료 처리
+# Complete task only without Discord notification
 task-actions done <task-id> --skip-discord
 
-# 모든 알림 없이 태스크만 완료 처리
+# Complete task only without any notifications
 task-actions done <task-id> --skip-slack --skip-discord
 
-# 이미 완료된 태스크를 강제로 다시 완료 처리
+# Force re-completion of already completed task
 task-actions done <task-id> --force
 ```
 
-태스크 완료 시 자동으로:
+When task is completed, automatically:
 
-- 태스크 상태를 'done'으로 변경
-- tasks.yaml 파일 업데이트
-- SLACK_WEBHOOK_URL이 설정되어 있으면 Slack으로 완료 알림 전송
-- DISCORD_WEBHOOK_URL이 설정되어 있으면 Discord로 완료 알림 전송
+- Change task status to 'done'
+- Update tasks.yaml file
+- Send completion notification to Slack if SLACK_WEBHOOK_URL is configured
+- Send completion notification to Discord if DISCORD_WEBHOOK_URL is configured
 
 ### Slack 및 Discord 연동 설정
 
@@ -314,7 +314,7 @@ MCP 서버 설정에서 환경변수를 추가하세요:
 				"SLACK_WEBHOOK_URL": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
 				"DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK"
 			},
-			"description": "Task Actions AI - GitHub Actions 스타일의 개발 워크플로우를 관리하는 MCP 서버"
+			"description": "Task Actions AI - MCP server for managing GitHub Actions-style development workflows"
 		}
 	}
 }
@@ -408,10 +408,10 @@ task-actions list
 ### 기본 프로젝트 구조 생성
 
 ```bash
-task-actions init --project-name "my-project" --author "개발자명"
+task-actions init --project-name "my-project" --author "Developer Name"
 ```
 
-이 명령어는 다음 구조를 생성합니다:
+This command creates the following structure:
 
 ```
 .task-actions/
@@ -434,7 +434,7 @@ task-actions init --project-name "my-project" --author "개발자명"
 └── vars.yaml
 ```
 
-### 프로그래밍 방식 사용
+### Programmatic Usage
 
 ```typescript
 import {
@@ -455,21 +455,21 @@ const generator = new YamlGenerator({
 	overwrite: false
 });
 
-// 모든 파일 생성
+// Generate all files
 const stats = await generator.generateAll();
 
-// 특정 타입만 생성
+// Generate specific type only
 await generator.generateByType('action');
 
-// 새로운 태스크 생성
+// Generate new task
 await generator.generateTask('001', 'Setup', 'Initial project setup');
 ```
 
-## 🔗 구성 파일
+## 🔗 Configuration Files
 
 ### vars.yaml
 
-프로젝트 전역 변수를 정의합니다.
+Defines project global variables.
 
 ```yaml
 slack_webhook_url: 'https://hooks.slack.com/...'

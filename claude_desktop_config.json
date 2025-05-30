@@ -8,7 +8,7 @@
 			"env": {
 				"SLACK_WEBHOOK_URL": "YOUR_SLACK_WEBHOOK_URL_HERE"
 			},
-			"description": "Task Actions MCP Server - GitHub Actions 스타일의 개발 워크플로우를 관리하는 AI 어시스턴트"
+			"description": "Task Actions MCP Server - AI assistant for managing GitHub Actions-style development workflows"
 		}
 	}
 }

@@ -5,8 +5,7 @@ import {
 	TASK_ACTIONS_DIR,
 	TemplateProcessor,
 	TemplateType,
-	TemplateVariables,
-	YamlGenerator
+	TemplateVariables
 } from '../generator';
 import {
 	DEFAULT_URLS,
@@ -22,6 +21,7 @@ import {
 	printDirectoryTree
 } from './utils';
 import { YamlParser } from './yaml-parser';
+import { GeneratorFactory } from './generator-factory';
 
 /**
  * 기본 프로젝트 변수 수집
@@ -53,20 +53,16 @@ export async function generateProjectFiles(
 	outputDir: string,
 	variables: TemplateVariables
 ): Promise<void> {
-	const templateDir = path.join(__dirname, '../templates');
-
 	// 변수 검증
 	if (!TemplateProcessor.validateVariables(variables)) {
 		throw new Error(MESSAGES.VALIDATION.REQUIRED_VARIABLES_MISSING);
 	}
 
-	const generator = new YamlGenerator({
+	const generator = GeneratorFactory.createGenerator(
 		outputDir,
-		templateDir,
 		variables,
-		overwrite: false
-	});
-
+		false
+	);
 	const stats = await generator.generateAll();
 	TemplateProcessor.printStats(stats);
 }
@@ -145,15 +141,11 @@ export async function initProject(): Promise<void> {
  * 특정 타입의 파일들 생성
  */
 export async function generateByType(type: TemplateType): Promise<void> {
-	const currentDir = process.cwd();
 	const variables = await loadExistingVariables();
-
-	const generator = new YamlGenerator({
-		outputDir: currentDir,
-		templateDir: path.join(__dirname, '../templates'),
+	const generator = GeneratorFactory.createGeneratorForCurrentDir(
 		variables,
-		overwrite: false
-	});
+		false
+	);
 
 	const stats = await generator.generateByType(type);
 	console.log(MESSAGES.GENERATION.SUCCESS(type));
@@ -185,12 +177,10 @@ export async function generateTask(
 		estimatedHours
 	};
 
-	const generator = new YamlGenerator({
-		outputDir: currentDir,
-		templateDir: path.join(__dirname, '../templates'),
-		variables: taskVariables,
-		overwrite: false
-	});
+	const generator = GeneratorFactory.createGeneratorForCurrentDir(
+		taskVariables,
+		false
+	);
 
 	await generator.generateTask(taskId, finalTaskName, finalDescription);
 
@@ -271,12 +261,10 @@ export async function checkProjectStatus(
 	console.log(MESSAGES.STATUS.INITIALIZED);
 
 	const variables = await loadExistingVariables();
-	const generator = new YamlGenerator({
-		outputDir: currentDir,
-		templateDir: path.join(__dirname, '../templates'),
+	const generator = GeneratorFactory.createGeneratorForCurrentDir(
 		variables,
-		overwrite: false
-	});
+		false
+	);
 
 	const stats = await generator.getGenerationStats();
 	TemplateProcessor.printStats(stats);

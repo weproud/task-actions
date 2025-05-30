@@ -43,6 +43,34 @@ const KNOWN_JOB_TYPES = {
 } as const;
 
 /**
+ * Type guard for WorkflowConfig
+ */
+function isWorkflowConfig(config: any): config is WorkflowConfig {
+	return (
+		config &&
+		typeof config === 'object' &&
+		'jobs' in config &&
+		config.jobs &&
+		typeof config.jobs === 'object' &&
+		'steps' in config.jobs &&
+		Array.isArray(config.jobs.steps)
+	);
+}
+
+/**
+ * Type guard for TaskConfig
+ */
+function isTaskConfig(config: any): config is TaskConfig {
+	return (
+		config &&
+		typeof config === 'object' &&
+		'jobs' in config &&
+		config.jobs &&
+		typeof config.jobs === 'object'
+	);
+}
+
+/**
  * Validate required fields in YAML files
  */
 function validateRequiredFields(config: any, filePath: string): string[] {
@@ -165,19 +193,13 @@ async function validateWorkflowRecursively(
 	errors.push(...validateRequiredFields(config, workflowPath));
 
 	// Validate WorkflowConfig type
-	const workflowConfig = config as WorkflowConfig;
-
-	if (
-		!workflowConfig.jobs ||
-		!workflowConfig.jobs.steps ||
-		!Array.isArray(workflowConfig.jobs.steps)
-	) {
+	if (!isWorkflowConfig(config)) {
 		errors.push(`${workflowPath}: Missing valid jobs.steps array.`);
 		return errors;
 	}
 
 	// Recursively validate uses files in each step
-	for (const step of workflowConfig.jobs.steps) {
+	for (const step of config.jobs.steps) {
 		if (step.uses) {
 			const actionErrors = await validateActionFile(step.uses, visitedFiles);
 			errors.push(...actionErrors);
@@ -328,15 +350,13 @@ async function validateTaskFile(taskFilePath: string): Promise<string[]> {
 	errors.push(...validateRequiredFields(config, taskFilePath));
 
 	// Validate TaskConfig type
-	const taskConfig = config as TaskConfig;
-
-	if (!taskConfig.jobs) {
+	if (!isTaskConfig(config)) {
 		errors.push(`${taskFilePath}: Missing jobs section.`);
 		return errors;
 	}
 
 	// Validate all jobs entries (both known and custom)
-	for (const [jobKey, jobValue] of Object.entries(taskConfig.jobs)) {
+	for (const [jobKey, jobValue] of Object.entries(config.jobs)) {
 		if (jobValue === undefined || jobValue === null) {
 			continue;
 		}

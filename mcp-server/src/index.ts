@@ -4,100 +4,107 @@ import { FastMCP } from 'fastmcp';
 import { z } from 'zod';
 import { TaskActionsTools } from './tools.js';
 
-// FastMCP 서버 생성
+// Create FastMCP server
 const server = new FastMCP({
 	name: 'Task Actions MCP Server',
 	version: '2.0.0',
 	instructions: `
-Task Actions CLI와 연동하여 GitHub Actions 스타일의 개발 워크플로우를 관리하는 MCP 서버입니다.
+MCP server that manages GitHub Actions-style development workflows in integration with Task Actions CLI.
 
-주요 기능:
-- 프로젝트 상태 확인 및 검증
-- 태스크 시작 및 실행 (YAML 구조 출력)
-- 템플릿 목록 조회
-- Slack 알림 전송
+Key features:
+- Check and validate project status
+- Start and execute tasks (YAML structure output)
+- Query template lists
+- Send Slack notifications
 
-이 서버는 정보 조회와 태스크 실행에 특화되어 있으며, 실제 파일 생성은 CLI를 직접 사용해야 합니다.
+This server specializes in information retrieval and task execution. For actual file creation, use the CLI directly.
 	`.trim()
 });
 
-// Tools 인스턴스 생성
+// Create Tools instance
 const tools = new TaskActionsTools();
 
-// 프로젝트 상태 확인 도구
+// Project status check tool
 server.addTool({
 	name: 'check_status',
-	description: '프로젝트 상태를 확인합니다',
+	description: 'Check project status',
 	parameters: z.object({
-		detailed: z.boolean().optional().default(false).describe('상세한 정보 표시')
+		detailed: z
+			.boolean()
+			.optional()
+			.default(false)
+			.describe('Display detailed information')
 	}),
 	execute: async (args) => {
 		return await tools.checkStatus(args.detailed);
 	}
 });
 
-// 프로젝트 검증 도구
+// Project validation tool
 server.addTool({
 	name: 'validate',
-	description: '생성된 파일들의 유효성을 검사합니다',
+	description: 'Validate generated files',
 	parameters: z.object({}),
 	execute: async () => {
 		return await tools.validateProject();
 	}
 });
 
-// 태스크 시작 도구
+// Task start tool
 server.addTool({
 	name: 'start_task',
-	description: '지정된 task ID의 태스크를 시작합니다',
+	description: 'Start task with specified task ID',
 	parameters: z.object({
-		taskId: z.string().describe('시작할 태스크 ID'),
-		output: z.string().optional().describe('Prompt를 파일로 저장할 경로'),
+		taskId: z.string().describe('Task ID to start'),
+		output: z.string().optional().describe('Path to save prompt as file'),
 		clipboard: z
 			.boolean()
 			.optional()
 			.default(false)
-			.describe('Prompt를 클립보드에 복사 (macOS만 지원)')
+			.describe('Copy prompt to clipboard (macOS only)')
 	}),
 	execute: async (args) => {
 		return await tools.startTask(args.taskId, args.output, args.clipboard);
 	}
 });
 
-// Slack 메시지 전송 도구
+// Slack message sending tool
 server.addTool({
 	name: 'send_slack_message',
-	description: 'Slack으로 메시지를 전송합니다',
+	description: 'Send message to Slack',
 	parameters: z.object({
-		message: z.string().describe('전송할 메시지'),
-		channel: z.string().optional().describe('전송할 채널 (선택사항)')
+		message: z.string().describe('Message to send'),
+		channel: z.string().optional().describe('Channel to send to (optional)')
 	}),
 	execute: async (args) => {
 		return await tools.sendSlackMessage(args.message, args.channel);
 	}
 });
 
-// 풍부한 형식의 Slack 메시지 전송 도구
+// Rich format Slack message sending tool
 server.addTool({
 	name: 'send_rich_slack_message',
-	description: '풍부한 형식(첨부파일 포함)의 Slack 메시지를 전송합니다',
+	description: 'Send rich format Slack message (with attachments)',
 	parameters: z.object({
-		text: z.string().describe('메시지 텍스트'),
-		title: z.string().optional().describe('첨부파일 제목'),
+		text: z.string().describe('Message text'),
+		title: z.string().optional().describe('Attachment title'),
 		color: z
 			.string()
 			.optional()
-			.describe('첨부파일 색상 (good, warning, danger 또는 hex)'),
+			.describe('Attachment color (good, warning, danger or hex)'),
 		fields: z
 			.array(
 				z.object({
-					title: z.string().describe('필드 제목'),
-					value: z.string().describe('필드 값'),
-					short: z.boolean().optional().describe('짧은 형식 표시 여부')
+					title: z.string().describe('Field title'),
+					value: z.string().describe('Field value'),
+					short: z
+						.boolean()
+						.optional()
+						.describe('Whether to display in short format')
 				})
 			)
 			.optional()
-			.describe('추가 필드들')
+			.describe('Additional fields')
 	}),
 	execute: async (args) => {
 		return await tools.sendRichSlackMessage(
@@ -111,14 +118,14 @@ server.addTool({
 	}
 });
 
-// 태스크 완료 알림 도구
+// Task completion notification tool
 server.addTool({
 	name: 'send_task_completion_notification',
-	description: '태스크 완료 알림을 Slack으로 전송합니다',
+	description: 'Send task completion notification to Slack',
 	parameters: z.object({
-		taskId: z.string().describe('완료된 태스크 ID'),
-		taskName: z.string().describe('완료된 태스크 이름'),
-		projectName: z.string().optional().describe('프로젝트 이름 (선택사항)')
+		taskId: z.string().describe('Completed task ID'),
+		taskName: z.string().describe('Completed task name'),
+		projectName: z.string().optional().describe('Project name (optional)')
 	}),
 	execute: async (args) => {
 		return await tools.sendTaskCompletionNotification(
@@ -129,18 +136,18 @@ server.addTool({
 	}
 });
 
-// 서버 이벤트 리스너
+// Server event listeners
 server.on('connect', (event) => {
-	console.log('🔗 클라이언트가 연결되었습니다:', event.session);
+	console.log('🔗 Client connected:', event.session);
 });
 
 server.on('disconnect', (event) => {
-	console.log('📪 클라이언트가 연결 해제되었습니다:', event.session);
+	console.log('📪 Client disconnected:', event.session);
 });
 
-// 서버 시작
-console.log('🚀 Task Actions FastMCP 서버를 시작합니다...');
+// Start server
+console.log('🚀 Starting Task Actions FastMCP server...');
 server.start({
 	transportType: 'stdio'
 });
-console.log('✅ 서버가 성공적으로 시작되었습니다!');
+console.log('✅ Server started successfully!');

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * MCP 서버 테스트 스크립트
- * 이 스크립트는 MCP 서버가 올바르게 작동하는지 테스트합니다.
+ * MCP server test script
+ * This script tests whether the MCP server works correctly.
  */
 
 const { spawn } = require('child_process');
@@ -45,11 +45,11 @@ const testCases = [
 ];
 
 async function testMCPServer() {
-	console.log('🧪 MCP 서버 테스트를 시작합니다...\n');
+	console.log('🧪 Starting MCP server test...\n');
 
 	const serverPath = path.join(__dirname, 'dist', 'index.js');
 
-	// MCP 서버 시작
+	// Start MCP server
 	const server = spawn('node', [serverPath], {
 		stdio: ['pipe', 'pipe', 'pipe']
 	});
@@ -59,41 +59,41 @@ async function testMCPServer() {
 
 	server.stdout.on('data', (data) => {
 		const output = data.toString();
-		console.log('📨 서버 응답:', output);
+		console.log('📨 Server response:', output);
 		responses.push(output);
 	});
 
 	server.stderr.on('data', (data) => {
-		console.log('ℹ️  서버 로그:', data.toString());
+		console.log('ℹ️  Server log:', data.toString());
 	});
 
-	// 서버가 시작될 때까지 잠시 대기
+	// Wait briefly for server to start
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 
-	// 각 테스트 케이스 실행
+	// Execute each test case
 	for (const testCase of testCases) {
-		console.log(`\n🔍 테스트: ${testCase.name}`);
-		console.log('📤 요청:', JSON.stringify(testCase.request, null, 2));
+		console.log(`\n🔍 Test: ${testCase.name}`);
+		console.log('📤 Request:', JSON.stringify(testCase.request, null, 2));
 
 		server.stdin.write(JSON.stringify(testCase.request) + '\n');
 
-		// 응답을 기다림
+		// Wait for response
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 	}
 
-	// 서버 종료
+	// Terminate server
 	server.kill();
 
-	console.log('\n✅ 테스트 완료!');
-	console.log('\n📊 테스트 결과:');
-	console.log(`- 총 테스트 케이스: ${testCases.length}`);
-	console.log(`- 수신된 응답: ${responses.length}`);
+	console.log('\n✅ Test completed!');
+	console.log('\n📊 Test results:');
+	console.log(`- Total test cases: ${testCases.length}`);
+	console.log(`- Received responses: ${responses.length}`);
 
 	if (responses.length > 0) {
-		console.log('\n🎉 MCP 서버가 정상적으로 작동하고 있습니다!');
+		console.log('\n🎉 MCP server is working normally!');
 	} else {
 		console.log(
-			'\n❌ MCP 서버 응답을 받지 못했습니다. 서버 상태를 확인해주세요.'
+			'\n❌ No response received from MCP server. Please check server status.'
 		);
 	}
 }

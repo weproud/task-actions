@@ -8,7 +8,7 @@ export class TaskActionsTools {
 	private readonly taskActionsCli: string;
 
 	constructor() {
-		// task-actions CLI 경로 설정 (절대 경로 사용)
+		// Set task-actions CLI path (using absolute path)
 		this.taskActionsCli =
 			'/Users/raiiz/labs/workspace/task-actions/dist/cli.js';
 	}
@@ -27,11 +27,13 @@ export class TaskActionsTools {
 			});
 
 			const output = stdout + (stderr ? `\n\nWarnings/Errors:\n${stderr}` : '');
-			return output || `${command} 명령어가 성공적으로 실행되었습니다.`;
+			return output || `${command} command executed successfully.`;
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : String(error);
-			throw new Error(`❌ 명령어 실행 중 오류가 발생했습니다: ${errorMessage}`);
+			throw new Error(
+				`❌ Error occurred during command execution: ${errorMessage}`
+			);
 		}
 	}
 
@@ -39,7 +41,7 @@ export class TaskActionsTools {
 		return this.executeCli('init');
 	}
 
-	// 파일 생성 메서드들은 제거됨 - CLI를 직접 사용하세요
+	// File generation methods removed - use CLI directly
 
 	async listTemplates(type?: string): Promise<string> {
 		const args = type ? ['--type', type] : [];
@@ -55,7 +57,7 @@ export class TaskActionsTools {
 		return this.executeCli('validate');
 	}
 
-	// cleanProject 메서드는 제거됨 - 위험한 작업이므로 CLI를 직접 사용하세요
+	// cleanProject method removed - use CLI directly for dangerous operations
 
 	async startTask(
 		taskId: string,
