@@ -12,9 +12,8 @@ export const TASKS_BASE_TEMPLATE: YamlTemplate = {
 				id: '0000',
 				status: 'todo'
 			}
-		]
-	},
-	enhancedprompt: `You are a project management specialist responsible for creating and maintaining a comprehensive task management system that enables efficient project tracking, team coordination, and delivery management.
+		],
+		enhancedprompt: `You are a project management specialist responsible for creating and maintaining a comprehensive task management system that enables efficient project tracking, team coordination, and delivery management.
 
 OBJECTIVE:
 Establish a structured, scalable task management framework that facilitates clear project visibility, efficient resource allocation, and successful project delivery through organized task tracking and team collaboration.
@@ -46,4 +45,5 @@ DETAILED STEPS:
 
 EXPECTED OUTCOME:
 A well-organized task management system that provides clear project visibility, efficient team coordination, and successful project delivery through structured task tracking and management.`
+	}
 };

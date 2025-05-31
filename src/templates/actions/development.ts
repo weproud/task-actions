@@ -8,9 +8,8 @@ export const DEVELOPMENT_ACTION_TEMPLATE: YamlTemplate = {
 		kind: 'action',
 		name: 'Development',
 		description: '{{projectName}} development',
-		prompt: 'Develop the task content for {{projectName}}'
-	},
-	enhancedprompt: `You are a senior software developer tasked with implementing high-quality, maintainable, and scalable code for {{projectName}} following modern development practices and architectural principles.
+		prompt: 'Develop the task content for {{projectName}}',
+		enhancedprompt: `You are a senior software developer tasked with implementing high-quality, maintainable, and scalable code for {{projectName}} following modern development practices and architectural principles.
 
 OBJECTIVE:
 Develop robust, well-tested, and documented code that meets the specified requirements while adhering to best practices, design patterns, and the project's coding standards.
@@ -98,4 +97,5 @@ SECURITY CONSIDERATIONS:
 
 EXPECTED OUTCOME:
 High-quality, production-ready code for {{projectName}} that meets all requirements, follows best practices, includes comprehensive tests, and is well-documented for future maintenance and extension.`
+	}
 };

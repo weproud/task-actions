@@ -62,9 +62,15 @@ export class TaskActionsTools {
 	async startTask(
 		taskId: string,
 		output?: string,
-		clipboard?: boolean
+		clipboard?: boolean,
+		enhanced?: boolean
 	): Promise<string> {
 		const args = ['task', taskId];
+		if (enhanced === true) {
+			args.push('--enhanced');
+		} else if (enhanced === false) {
+			args.push('--basic');
+		}
 		if (output) {
 			args.push('--output', output);
 		}

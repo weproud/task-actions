@@ -148,9 +148,18 @@ showCmd
 	.command('task')
 	.description('지정된 task ID의 템플릿 구성을 확인합니다')
 	.argument('<task-id>', '확인할 태스크 ID')
-	.action(async (taskId) => {
+	.option('--enhanced', 'Enhanced prompt를 사용합니다')
+	.option('--basic', '기본 prompt를 사용합니다 (vars.yaml 설정 무시)')
+	.action(async (taskId, options) => {
 		try {
-			await showTask(taskId);
+			let enhanced: boolean | undefined;
+			if (options.enhanced) {
+				enhanced = true;
+			} else if (options.basic) {
+				enhanced = false;
+			}
+			// enhanced가 undefined이면 vars.yaml 설정을 사용
+			await showTask(taskId, enhanced);
 		} catch (error) {
 			ErrorHandler.handleCliError('태스크 정보 조회', error, debugMode);
 		}
@@ -166,9 +175,18 @@ startCmd
 	.command('task')
 	.description('지정된 task ID의 태스크를 시작합니다')
 	.argument('<task-id>', '시작할 태스크 ID')
-	.action(async (taskId) => {
+	.option('--enhanced', 'Enhanced prompt를 사용합니다')
+	.option('--basic', '기본 prompt를 사용합니다 (vars.yaml 설정 무시)')
+	.action(async (taskId, options) => {
 		try {
-			await startTask(taskId);
+			let enhanced: boolean | undefined;
+			if (options.enhanced) {
+				enhanced = true;
+			} else if (options.basic) {
+				enhanced = false;
+			}
+			// enhanced가 undefined이면 vars.yaml 설정을 사용
+			await startTask(taskId, enhanced);
 		} catch (error) {
 			ErrorHandler.handleCliError('태스크 시작', error, debugMode);
 		}

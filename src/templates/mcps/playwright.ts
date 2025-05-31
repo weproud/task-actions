@@ -8,9 +8,8 @@ export const PLAYWRIGHT_MCP_TEMPLATE: YamlTemplate = {
 		kind: 'mcp',
 		name: 'playwright',
 		description: 'Browser automation and testing with Playwright',
-		prompt: `Perform browser automation and E2E testing using Playwright. Includes user scenario-based test writing, cross-browser testing, performance and accessibility testing.`
-	},
-	enhancedprompt: `You are a browser automation and testing specialist responsible for creating comprehensive end-to-end tests using Playwright to ensure application quality, performance, and accessibility across multiple browsers and devices.
+		prompt: `Perform browser automation and E2E testing using Playwright. Includes user scenario-based test writing, cross-browser testing, performance and accessibility testing.`,
+		enhancedprompt: `You are a browser automation and testing specialist responsible for creating comprehensive end-to-end tests using Playwright to ensure application quality, performance, and accessibility across multiple browsers and devices.
 
 OBJECTIVE:
 Develop robust, maintainable browser automation tests that validate user workflows, cross-browser compatibility, performance metrics, and accessibility standards to ensure high-quality web applications.
@@ -39,4 +38,5 @@ DETAILED STEPS:
 
 EXPECTED OUTCOME:
 Comprehensive browser automation test suite that validates application functionality, performance, and accessibility across multiple browsers and devices with reliable, maintainable test code.`
+	}
 };

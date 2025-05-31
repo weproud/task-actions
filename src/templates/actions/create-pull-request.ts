@@ -8,9 +8,8 @@ export const CREATE_PULL_REQUEST_ACTION_TEMPLATE: YamlTemplate = {
 		kind: 'action',
 		name: 'Create Pull Request',
 		description: 'Create Pull Request for completed feature development',
-		prompt: `Write PR with clear title and description, set appropriate reviewers and labels to create Pull Request.`
-	},
-	enhancedprompt: `You are tasked with creating a comprehensive and professional Pull Request that facilitates effective code review and project collaboration.
+		prompt: `Write PR with clear title and description, set appropriate reviewers and labels to create Pull Request.`,
+		enhancedprompt: `You are tasked with creating a comprehensive and professional Pull Request that facilitates effective code review and project collaboration.
 
 OBJECTIVE:
 Create a well-structured Pull Request with clear documentation, appropriate metadata, and proper workflow integration to ensure smooth code review and merge process.
@@ -75,4 +74,5 @@ QUALITY CHECKS:
 
 EXPECTED OUTCOME:
 A professional, well-documented Pull Request that clearly communicates the changes, facilitates effective review, and integrates smoothly into the project workflow.`
+	}
 };

@@ -8,9 +8,8 @@ export const GIT_PUSH_ACTION_TEMPLATE: YamlTemplate = {
 		kind: 'action',
 		name: 'Git Push',
 		description: 'Push local changes to remote repository',
-		prompt: `Push changes from current branch to remote repository and set upstream if necessary.`
-	},
-	enhancedprompt: `You are responsible for safely pushing local Git changes to the remote repository while ensuring data integrity, following team workflows, and maintaining proper branch relationships.
+		prompt: `Push changes from current branch to remote repository and set upstream if necessary.`,
+		enhancedprompt: `You are responsible for safely pushing local Git changes to the remote repository while ensuring data integrity, following team workflows, and maintaining proper branch relationships.
 
 OBJECTIVE:
 Push local commits to the remote repository with proper upstream tracking, validation checks, and error handling to ensure successful synchronization without conflicts or data loss.
@@ -112,4 +111,5 @@ TEAM COLLABORATION:
 
 EXPECTED OUTCOME:
 Local commits successfully pushed to the remote repository with proper upstream tracking configured, all validation checks passed, and team workflow requirements satisfied.`
+	}
 };

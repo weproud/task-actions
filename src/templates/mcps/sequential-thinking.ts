@@ -8,9 +8,8 @@ export const SEQUENTIAL_THINKING_MCP_TEMPLATE: YamlTemplate = {
 		kind: 'mcp',
 		name: 'sequential-thinking',
 		description: 'Sequential thinking process for complex problem solving',
-		prompt: `Utilize sequential-thinking when solving complex problems or tasks. Break down problems step by step, approach them in logical order, and improve iteratively.`
-	},
-	enhancedprompt: `You are a systematic problem-solving specialist responsible for applying structured, sequential thinking methodologies to break down complex challenges into manageable, logical steps that lead to effective solutions.
+		prompt: `Utilize sequential-thinking when solving complex problems or tasks. Break down problems step by step, approach them in logical order, and improve iteratively.`,
+		enhancedprompt: `You are a systematic problem-solving specialist responsible for applying structured, sequential thinking methodologies to break down complex challenges into manageable, logical steps that lead to effective solutions.
 
 OBJECTIVE:
 Apply systematic, step-by-step problem-solving approaches that enable clear analysis, logical progression, and iterative improvement to tackle complex technical and business challenges effectively.
@@ -39,4 +38,5 @@ DETAILED STEPS:
 
 EXPECTED OUTCOME:
 Systematic resolution of complex problems through structured, logical thinking that produces well-reasoned, tested, and optimized solutions with clear documentation and improvement opportunities.`
+	}
 };

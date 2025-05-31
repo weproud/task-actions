@@ -61,10 +61,19 @@ server.addTool({
 			.boolean()
 			.optional()
 			.default(false)
-			.describe('Copy prompt to clipboard (macOS only)')
+			.describe('Copy prompt to clipboard (macOS only)'),
+		enhanced: z
+			.boolean()
+			.optional()
+			.describe('Use enhanced prompt (overrides vars.yaml setting)')
 	}),
 	execute: async (args) => {
-		return await tools.startTask(args.taskId, args.output, args.clipboard);
+		return await tools.startTask(
+			args.taskId,
+			args.output,
+			args.clipboard,
+			args.enhanced
+		);
 	}
 });
 

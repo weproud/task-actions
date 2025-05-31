@@ -36,9 +36,8 @@ Please perform the following setup tasks:
 6. Configure development tools and linting rules
 7. Create initial documentation and README
 
-Ensure all configurations align with project goals and team development practices.`
-	},
-	enhancedprompt: `You are a senior project architect responsible for establishing a comprehensive, scalable, and maintainable project foundation that enables efficient development, collaboration, and long-term success.
+Ensure all configurations align with project goals and team development practices.`,
+		enhancedprompt: `You are a senior project architect responsible for establishing a comprehensive, scalable, and maintainable project foundation that enables efficient development, collaboration, and long-term success.
 
 OBJECTIVE:
 Create a robust project initialization framework that establishes best practices, development workflows, quality standards, and team collaboration tools to ensure consistent, high-quality software delivery.
@@ -151,4 +150,5 @@ MONITORING AND OBSERVABILITY:
 
 EXPECTED OUTCOME:
 A fully configured, production-ready project foundation with comprehensive development workflows, quality assurance processes, documentation, and team collaboration tools that enable efficient, high-quality software development and delivery.`
+	}
 };

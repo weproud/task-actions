@@ -8,9 +8,8 @@ export const CREATE_BRANCH_ACTION_TEMPLATE: YamlTemplate = {
 		kind: 'action',
 		name: 'Create Branch',
 		description: 'Create a new Git branch',
-		prompt: `Generate appropriate branch name using {{branchPrefix}}/ prefix, create new branch from latest main/develop branch and checkout.`
-	},
-	enhancedprompt: `You are tasked with creating a new Git branch following best practices and naming conventions.
+		prompt: `Generate appropriate branch name using {{branchPrefix}}/ prefix, create new branch from latest main/develop branch and checkout.`,
+		enhancedprompt: `You are tasked with creating a new Git branch following best practices and naming conventions.
 
 OBJECTIVE:
 Create a new Git branch with an appropriate name that follows the project's naming conventions and ensures a clean starting point for development.
@@ -56,4 +55,5 @@ ERROR HANDLING:
 
 EXPECTED OUTCOME:
 A new Git branch with a semantically meaningful name, created from the latest version of the base branch, ready for development work to begin.`
+	}
 };

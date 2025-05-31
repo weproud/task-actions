@@ -7,6 +7,23 @@ import { notifyTaskCompletion, notifyTaskCompletionDiscord } from './utils';
 
 const execAsync = promisify(exec);
 
+/**
+ * vars.yaml에서 use_enhanced_prompt 설정을 읽어옵니다
+ */
+async function getEnhancedPromptSetting(): Promise<boolean> {
+	try {
+		const varsPath = path.join('.task-actions', 'vars.yaml');
+		const varsContent = await fs.readFile(varsPath, 'utf-8');
+		const vars = yaml.load(varsContent) as any;
+		return vars.development?.use_enhanced_prompt === true;
+	} catch (error) {
+		console.warn(
+			'⚠️  vars.yaml 파일을 읽을 수 없습니다. 기본 prompt를 사용합니다.'
+		);
+		return false;
+	}
+}
+
 interface TaskConfig {
 	version: number;
 	kind: string;
@@ -21,6 +38,7 @@ interface TaskConfig {
 	};
 	systemprompt?: string;
 	prompt: string;
+	enhancedprompt?: string;
 }
 
 interface WorkflowConfig {
@@ -61,7 +79,10 @@ interface McpConfig {
 	prompt: string;
 }
 
-export async function startTask(taskId: string): Promise<void> {
+export async function startTask(
+	taskId: string,
+	enhanced?: boolean
+): Promise<void> {
 	try {
 		console.log(`🚀 Task "${taskId}"를 시작합니다...\n`);
 
@@ -78,8 +99,14 @@ export async function startTask(taskId: string): Promise<void> {
 		const taskConfigContent = await fs.readFile(taskConfigPath, 'utf-8');
 		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
 
+		// enhanced 설정 결정 (우선순위: 매개변수 > vars.yaml > false)
+		let useEnhanced = enhanced;
+		if (useEnhanced === undefined) {
+			useEnhanced = await getEnhancedPromptSetting();
+		}
+
 		// YAML 객체 구성
-		const yamlObject = await buildTaskYamlObject(taskConfig);
+		const yamlObject = await buildTaskYamlObject(taskConfig, useEnhanced);
 
 		// YAML을 예쁘게 포맷팅
 		const yamlOutput = yaml.dump(yamlObject, {
@@ -90,8 +117,9 @@ export async function startTask(taskId: string): Promise<void> {
 			skipInvalid: true
 		});
 
+		const promptType = useEnhanced ? 'Enhanced Prompt' : 'Basic Prompt';
 		console.log('\n' + '='.repeat(80));
-		console.log('🎯 Task YAML Structure (Including Prompt)');
+		console.log(`🎯 Task YAML Structure (${promptType})`);
 		console.log('='.repeat(80));
 		console.log(yamlOutput);
 		console.log('='.repeat(80));
@@ -102,7 +130,8 @@ export async function startTask(taskId: string): Promise<void> {
 }
 
 async function collectWorkflowPromptsOnly(
-	workflowPath: string
+	workflowPath: string,
+	useEnhanced: boolean = false
 ): Promise<string[]> {
 	const prompts: string[] = [];
 	const fullPath = path.join('.task-actions', workflowPath);
@@ -120,13 +149,19 @@ async function collectWorkflowPromptsOnly(
 		for (const step of workflowConfig.jobs.steps) {
 			if (step.uses) {
 				// Collect prompt from action file specified in uses (without header)
-				const actionPrompt = await collectActionPromptOnly(step.uses);
+				const actionPrompt = await collectActionPromptOnly(
+					step.uses,
+					useEnhanced
+				);
 				if (actionPrompt) {
 					prompts.push(actionPrompt);
 				}
 			} else if (step.prompt) {
 				// Collect directly specified prompt file (without header)
-				const actionPrompt = await collectActionPromptOnly(step.prompt);
+				const actionPrompt = await collectActionPromptOnly(
+					step.prompt,
+					useEnhanced
+				);
 				if (actionPrompt) {
 					prompts.push(actionPrompt);
 				}
@@ -140,15 +175,19 @@ async function collectWorkflowPromptsOnly(
 }
 
 async function collectActionPromptOnly(
-	actionPath: string
+	actionPath: string,
+	useEnhanced: boolean = false
 ): Promise<string | null> {
 	const fullPath = path.join('.task-actions', actionPath);
 
 	try {
 		const actionContent = await fs.readFile(fullPath, 'utf-8');
-		const actionConfig: ActionConfig = yaml.load(actionContent) as ActionConfig;
+		const actionConfig: any = yaml.load(actionContent) as any;
 
-		// Return only prompt without header
+		// Return enhanced prompt if available and requested, otherwise basic prompt
+		if (useEnhanced && actionConfig.enhancedprompt) {
+			return actionConfig.enhancedprompt;
+		}
 		return actionConfig.prompt;
 	} catch (error) {
 		console.warn(`⚠️  Error reading action file: ${actionPath}`, error);
@@ -156,14 +195,20 @@ async function collectActionPromptOnly(
 	}
 }
 
-async function collectRulePromptOnly(rulePath: string): Promise<string | null> {
+async function collectRulePromptOnly(
+	rulePath: string,
+	useEnhanced: boolean = false
+): Promise<string | null> {
 	const fullPath = path.join('.task-actions', rulePath);
 
 	try {
 		const ruleContent = await fs.readFile(fullPath, 'utf-8');
-		const ruleConfig: RuleConfig = yaml.load(ruleContent) as RuleConfig;
+		const ruleConfig: any = yaml.load(ruleContent) as any;
 
-		// Return only prompt without header
+		// Return enhanced prompt if available and requested, otherwise basic prompt
+		if (useEnhanced && ruleConfig.enhancedprompt) {
+			return ruleConfig.enhancedprompt;
+		}
 		return ruleConfig.prompt;
 	} catch (error) {
 		console.warn(`⚠️  Error reading rule file: ${rulePath}`, error);
@@ -171,14 +216,20 @@ async function collectRulePromptOnly(rulePath: string): Promise<string | null> {
 	}
 }
 
-async function collectMcpPromptOnly(mcpPath: string): Promise<string | null> {
+async function collectMcpPromptOnly(
+	mcpPath: string,
+	useEnhanced: boolean = false
+): Promise<string | null> {
 	const fullPath = path.join('.task-actions', mcpPath);
 
 	try {
 		const mcpContent = await fs.readFile(fullPath, 'utf-8');
-		const mcpConfig: McpConfig = yaml.load(mcpContent) as McpConfig;
+		const mcpConfig: any = yaml.load(mcpContent) as any;
 
-		// Return only prompt without header
+		// Return enhanced prompt if available and requested, otherwise basic prompt
+		if (useEnhanced && mcpConfig.enhancedprompt) {
+			return mcpConfig.enhancedprompt;
+		}
 		return mcpConfig.prompt;
 	} catch (error) {
 		console.warn(`⚠️  Error reading MCP file: ${mcpPath}`, error);
@@ -327,7 +378,10 @@ async function updateTasksStatus(
 	}
 }
 
-export async function showTask(taskId: string): Promise<void> {
+export async function showTask(
+	taskId: string,
+	enhanced?: boolean
+): Promise<void> {
 	try {
 		const taskConfigPath = path.join('.task-actions', `task-${taskId}.yaml`);
 
@@ -342,8 +396,14 @@ export async function showTask(taskId: string): Promise<void> {
 		const taskConfigContent = await fs.readFile(taskConfigPath, 'utf-8');
 		const taskConfig: TaskConfig = yaml.load(taskConfigContent) as TaskConfig;
 
+		// enhanced 설정 결정 (우선순위: 매개변수 > vars.yaml > false)
+		let useEnhanced = enhanced;
+		if (useEnhanced === undefined) {
+			useEnhanced = await getEnhancedPromptSetting();
+		}
+
 		// Build YAML object
-		const yamlObject = await buildTaskYamlObject(taskConfig);
+		const yamlObject = await buildTaskYamlObject(taskConfig, useEnhanced);
 
 		// Format and output YAML prettily
 		const prettyYaml = yaml.dump(yamlObject, {
@@ -364,7 +424,10 @@ export async function showTask(taskId: string): Promise<void> {
 /**
  * Build YAML object based on Task configuration
  */
-async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
+async function buildTaskYamlObject(
+	taskConfig: TaskConfig,
+	useEnhanced: boolean = false
+): Promise<any> {
 	const yamlObject: any = {
 		version: taskConfig.version,
 		kind: taskConfig.kind,
@@ -382,7 +445,8 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 	// Collect and add workflow prompts
 	if (taskConfig.jobs.workflow) {
 		const workflowPrompts = await collectWorkflowPromptsOnly(
-			taskConfig.jobs.workflow
+			taskConfig.jobs.workflow,
+			useEnhanced
 		);
 		const combinedWorkflowPrompt = workflowPrompts.join('\n\n');
 		yamlObject.jobs.workflow = combinedWorkflowPrompt;
@@ -392,7 +456,7 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 	if (taskConfig.jobs.rules && taskConfig.jobs.rules.length > 0) {
 		yamlObject.jobs.rules = [];
 		for (const rulePath of taskConfig.jobs.rules) {
-			const rulePrompt = await collectRulePromptOnly(rulePath);
+			const rulePrompt = await collectRulePromptOnly(rulePath, useEnhanced);
 			if (rulePrompt) {
 				yamlObject.jobs.rules.push(rulePrompt);
 			}
@@ -403,7 +467,7 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 	if (taskConfig.jobs.mcps && taskConfig.jobs.mcps.length > 0) {
 		yamlObject.jobs.mcps = [];
 		for (const mcpPath of taskConfig.jobs.mcps) {
-			const mcpPrompt = await collectMcpPromptOnly(mcpPath);
+			const mcpPrompt = await collectMcpPromptOnly(mcpPath, useEnhanced);
 			if (mcpPrompt) {
 				yamlObject.jobs.mcps.push(mcpPrompt);
 			}
@@ -415,8 +479,12 @@ async function buildTaskYamlObject(taskConfig: TaskConfig): Promise<any> {
 		yamlObject.systemprompt = taskConfig.systemprompt;
 	}
 
-	// Add prompt
-	yamlObject.prompt = taskConfig.prompt;
+	// Add prompt (use enhanced if available and requested)
+	if (useEnhanced && taskConfig.enhancedprompt) {
+		yamlObject.prompt = taskConfig.enhancedprompt;
+	} else {
+		yamlObject.prompt = taskConfig.prompt;
+	}
 
 	return yamlObject;
 }
