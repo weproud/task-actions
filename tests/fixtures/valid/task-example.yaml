@@ -1,0 +1,20 @@
+version: 1
+kind: task
+name: example-task
+description: Example task for testing
+id: task-001
+status: pending
+prompt: |
+  This is an example task prompt for testing purposes.
+  It contains multiple lines to test YAML parsing.
+jobs:
+  workflow: workflows/example-workflow.yaml
+  rules:
+    - rules/example-rule.yaml
+    - rules/another-rule.yaml
+  mcps:
+    - mcps/example-mcp.yaml
+  custom_job: custom/example-custom.yaml
+  custom_array:
+    - custom/custom1.yaml
+    - custom/custom2.yaml

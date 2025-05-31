@@ -1,0 +1,9 @@
+version: 1
+kind: workflow
+name: workflow-a
+description: Workflow A that references B
+prompt: This workflow creates a circular reference
+jobs:
+  steps:
+    - name: step-1
+      uses: actions/action-b.yaml

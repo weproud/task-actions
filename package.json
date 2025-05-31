@@ -20,6 +20,9 @@
 		"test:watch-all": "jest --watchAll",
 		"test:watch-poll": "jest --watch --watchman=false",
 		"test:coverage": "jest --coverage",
+		"test:validation": "jest tests/core/validation",
+		"test:validation-utils": "jest tests/core/validation-utils",
+		"test:validation-all": "jest tests/core/",
 		"prepublishOnly": "npm run build"
 	},
 	"keywords": [

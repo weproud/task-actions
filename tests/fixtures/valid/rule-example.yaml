@@ -1,0 +1,7 @@
+version: 1
+kind: rule
+name: example-rule
+description: Example rule for testing
+prompt: |
+  This is an example rule prompt for testing.
+  Rules define validation and processing logic.

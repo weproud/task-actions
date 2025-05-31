@@ -1,0 +1,7 @@
+version: 1
+kind: mcp
+name: example-mcp
+description: Example MCP for testing
+prompt: |
+  This is an example MCP prompt for testing.
+  MCPs define Model Context Protocol configurations.

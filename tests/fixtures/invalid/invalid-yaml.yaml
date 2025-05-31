@@ -1,0 +1,10 @@
+version: 1
+kind: task
+name: invalid-task
+description: Task with invalid YAML syntax
+prompt: |
+  This YAML has syntax errors
+jobs:
+  workflow: workflows/example.yaml
+  invalid_syntax: [unclosed array
+  another_field: "unclosed string

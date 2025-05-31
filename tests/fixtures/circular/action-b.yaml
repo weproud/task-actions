@@ -1,0 +1,5 @@
+version: 1
+kind: action
+name: action-b
+description: Action B that would create circular reference
+prompt: This action references back to workflow A

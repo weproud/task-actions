@@ -146,6 +146,18 @@ test-mcp: build-mcp ## MCP 서버 테스트를 실행합니다
 	@echo "$(BLUE)MCP 서버 테스트 실행 중...$(NC)"
 	cd $(MCP_DIR) && $(NPM) run test
 
+test-validation: build ## validation 모듈 테스트만 실행합니다
+	@echo "$(BLUE)Validation 테스트 실행 중...$(NC)"
+	npx jest tests/core/validation
+
+test-validation-utils: build ## validation utils 테스트만 실행합니다
+	@echo "$(BLUE)Validation Utils 테스트 실행 중...$(NC)"
+	npx jest tests/core/validation-utils
+
+test-validation-all: build ## 모든 validation 테스트를 실행합니다
+	@echo "$(BLUE)모든 Validation 테스트 실행 중...$(NC)"
+	npx jest tests/core/
+
 test-all: test test-mcp ## 모든 테스트를 실행합니다
 	@echo "$(GREEN)모든 테스트 완료!$(NC)"
 

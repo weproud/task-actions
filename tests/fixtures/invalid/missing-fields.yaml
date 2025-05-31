@@ -1,0 +1,7 @@
+version: 1
+kind: task
+# Missing required fields: name, description, prompt
+id: incomplete-task
+status: pending
+jobs:
+  workflow: workflows/example.yaml

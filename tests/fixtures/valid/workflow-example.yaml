@@ -1,0 +1,14 @@
+version: 1
+kind: workflow
+name: example-workflow
+description: Example workflow for testing
+prompt: |
+  This is an example workflow prompt.
+jobs:
+  steps:
+    - name: first-step
+      uses: actions/example-action.yaml
+    - name: second-step
+      prompt: actions/prompt-action.yaml
+    - name: third-step
+      uses: actions/another-action.yaml

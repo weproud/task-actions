@@ -1,0 +1,7 @@
+version: 1
+kind: action
+name: example-action
+description: Example action for testing
+prompt: |
+  This is an example action prompt for testing.
+  Actions are used in workflow steps.
