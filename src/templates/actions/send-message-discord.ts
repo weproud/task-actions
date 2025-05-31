@@ -46,9 +46,8 @@ Example message format:
 curl example:
 curl -X POST -H 'Content-type: application/json' \\
 --data '{"content":"Hello, World!"}' \\
-\${DISCORD_WEBHOOK_URL}`
-	},
-	enhancedprompt: `You are responsible for sending engaging, well-formatted messages to Discord channels using webhooks, ensuring proper delivery, rich formatting, and effective community communication.
+\${DISCORD_WEBHOOK_URL}`,
+		enhancedprompt: `You are responsible for sending engaging, well-formatted messages to Discord channels using webhooks, ensuring proper delivery, rich formatting, and effective community communication.
 
 OBJECTIVE:
 Send visually appealing, contextually appropriate messages to Discord channels with rich embeds, proper formatting, error handling, and delivery confirmation to enhance community engagement and notifications.
@@ -101,4 +100,5 @@ BEST PRACTICES:
 
 EXPECTED OUTCOME:
 Successful delivery of visually appealing, well-structured messages to the target Discord channel with proper formatting, error handling, and enhanced community engagement through rich content presentation.`
+	}
 };

@@ -253,4 +253,53 @@ export class FileSystemUtils {
 	): string {
 		return path.join(baseDir, subdirectory, filename);
 	}
+
+	/**
+	 * 일반 파일 쓰기 (간단한 인터페이스)
+	 */
+	static writeFile(filePath: string, content: string): void {
+		try {
+			// 디렉토리 생성
+			const dirPath = path.dirname(filePath);
+			this.ensureDirectoryExists(dirPath);
+
+			fs.writeFileSync(filePath, content, 'utf-8');
+		} catch (error) {
+			throw new Error(`파일 쓰기 실패: ${filePath} - ${error}`);
+		}
+	}
+
+	/**
+	 * 파일 복사
+	 */
+	static copyFile(sourcePath: string, destPath: string): void {
+		try {
+			// 소스 파일 존재 확인
+			if (!this.fileExists(sourcePath)) {
+				throw new Error(`소스 파일이 존재하지 않습니다: ${sourcePath}`);
+			}
+
+			// 대상 디렉토리 생성
+			const destDir = path.dirname(destPath);
+			this.ensureDirectoryExists(destDir);
+
+			// 파일 복사
+			fs.copyFileSync(sourcePath, destPath);
+		} catch (error) {
+			throw new Error(
+				`파일 복사 실패: ${sourcePath} -> ${destPath} - ${error}`
+			);
+		}
+	}
+
+	/**
+	 * 파일 통계 정보 조회
+	 */
+	static getFileStats(filePath: string): fs.Stats {
+		try {
+			return fs.statSync(filePath);
+		} catch (error) {
+			throw new Error(`파일 통계 조회 실패: ${filePath} - ${error}`);
+		}
+	}
 }

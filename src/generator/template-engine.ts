@@ -8,6 +8,19 @@ import { TemplateVariables } from './types';
  */
 export class TemplateEngine {
 	/**
+	 * 템플릿 문자열에서 변수를 치환 (processTemplate의 별칭)
+	 * @param template 템플릿 문자열
+	 * @param variables 치환할 변수들
+	 * @returns 치환된 문자열
+	 */
+	static processTemplate(
+		template: string,
+		variables: TemplateVariables
+	): string {
+		return this.render(template, variables);
+	}
+
+	/**
 	 * 템플릿 문자열에서 변수를 치환
 	 * @param template 템플릿 문자열
 	 * @param variables 치환할 변수들

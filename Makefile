@@ -96,9 +96,41 @@ run-cli: build ## CLI 명령어를 실행합니다 (예: make run-cli ARGS="init
 	node $(DIST_DIR)/cli.js $(ARGS)
 
 # 테스트 관련
-.PHONY: test test-mcp test-all test-init test-slack
-test: ## 메인 프로젝트 테스트를 실행합니다
-	@echo "$(BLUE)메인 프로젝트 테스트 실행 중...$(NC)"
+.PHONY: test test-unit test-integration test-performance test-mcp test-all test-coverage test-watch test-watch-all test-watch-poll
+test: build ## Jest를 사용하여 모든 테스트를 실행합니다
+	@echo "$(BLUE)Jest 테스트 실행 중...$(NC)"
+	npm test
+
+test-unit: build ## 단위 테스트만 실행합니다
+	@echo "$(BLUE)단위 테스트 실행 중...$(NC)"
+	npx jest tests/unit
+
+test-integration: build ## 통합 테스트만 실행합니다
+	@echo "$(BLUE)통합 테스트 실행 중...$(NC)"
+	npx jest tests/integration
+
+test-performance: build ## 성능 테스트만 실행합니다
+	@echo "$(BLUE)성능 테스트 실행 중...$(NC)"
+	npx jest tests/performance
+
+test-coverage: build ## 테스트 커버리지를 생성합니다
+	@echo "$(BLUE)테스트 커버리지 생성 중...$(NC)"
+	npm run test:coverage
+
+test-watch: ## 테스트를 감시 모드로 실행합니다
+	@echo "$(BLUE)테스트 감시 모드 실행 중...$(NC)"
+	npm run test:watch
+
+test-watch-all: ## 모든 테스트를 감시 모드로 실행합니다
+	@echo "$(BLUE)모든 테스트 감시 모드 실행 중...$(NC)"
+	npm run test:watch-all
+
+test-watch-poll: ## 폴링 방식으로 테스트를 감시합니다 (파일 감시 문제 해결용)
+	@echo "$(BLUE)폴링 방식 테스트 감시 모드 실행 중...$(NC)"
+	npm run test:watch-poll
+
+test-legacy: ## 기존 테스트 파일들을 실행합니다
+	@echo "$(BLUE)기존 테스트 실행 중...$(NC)"
 	@if [ -d "$(TEST_DIR)" ]; then \
 		for test_file in $(TEST_DIR)/*.ts; do \
 			if [ -f "$$test_file" ]; then \

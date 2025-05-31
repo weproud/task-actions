@@ -34,9 +34,8 @@ Example message format:
 curl example:
 curl -X POST -H 'Content-type: application/json' \\
 --data '{"text":"Hello, World!"}' \\
-\${SLACK_WEBHOOK_URL}`
-	},
-	enhancedprompt: `You are responsible for sending well-formatted, informative messages to Slack channels using webhooks, ensuring proper delivery, error handling, and team communication effectiveness.
+\${SLACK_WEBHOOK_URL}`,
+		enhancedprompt: `You are responsible for sending well-formatted, informative messages to Slack channels using webhooks, ensuring proper delivery, error handling, and team communication effectiveness.
 
 OBJECTIVE:
 Send clear, contextual messages to appropriate Slack channels with proper formatting, error handling, and delivery confirmation to facilitate effective team communication and notifications.
@@ -140,4 +139,5 @@ ERROR SCENARIOS AND SOLUTIONS:
 
 EXPECTED OUTCOME:
 Successful delivery of well-formatted, contextually appropriate messages to the target Slack channel with proper error handling, delivery confirmation, and effective team communication facilitation.`
+	}
 };

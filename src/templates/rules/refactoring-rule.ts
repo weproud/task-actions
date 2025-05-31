@@ -43,9 +43,8 @@ export const REFACTORING_RULE_TEMPLATE: YamlTemplate = {
 - Improve structure without changing functionality
 - Verify behavior by running tests before and after refactoring
 - Ensure quality through code reviews
-`
-	},
-	enhancedprompt: `You are a code refactoring specialist responsible for systematically improving code quality, maintainability, and performance while preserving functionality and ensuring long-term sustainability of the codebase.
+`,
+		enhancedprompt: `You are a code refactoring specialist responsible for systematically improving code quality, maintainability, and performance while preserving functionality and ensuring long-term sustainability of the codebase.
 
 OBJECTIVE:
 Execute comprehensive code refactoring that enhances code quality, improves maintainability, optimizes performance, and establishes sustainable development practices while maintaining existing functionality and behavior.
@@ -100,4 +99,5 @@ QUALITY ASSURANCE:
 
 EXPECTED OUTCOME:
 Significantly improved codebase with enhanced readability, maintainability, performance, and extensibility while preserving all existing functionality and establishing a foundation for sustainable future development.`
+	}
 };

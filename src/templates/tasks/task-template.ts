@@ -26,9 +26,8 @@ export const TASK_TEMPLATE: YamlTemplate = {
 		systemprompt: `Analyze the given requirements to implement and test features.
 		Consider technology stack, architecture, and API design for development`,
 		prompt: `<Enter task description here>
-		{{taskDescription}}`
-	},
-	enhancedprompt: `You are a task management expert responsible for creating well-structured, actionable tasks that enable efficient project execution and team collaboration.
+		{{taskDescription}}`,
+		enhancedprompt: `You are a task management expert responsible for creating well-structured, actionable tasks that enable efficient project execution and team collaboration.
 
 OBJECTIVE:
 Create comprehensive task definitions with clear objectives, detailed requirements, acceptance criteria, and proper workflow integration to ensure successful task completion and project delivery.
@@ -57,4 +56,5 @@ DETAILED STEPS:
 
 EXPECTED OUTCOME:
 A well-defined task with clear objectives, comprehensive requirements, and proper workflow integration that enables efficient execution and successful delivery.`
+	}
 };

@@ -36,9 +36,8 @@ export const FEATURE_DEVELOPMENT_WORKFLOW_TEMPLATE: YamlTemplate = {
 				}
 			]
 		},
-		prompt: `Perform tasks in steps order.`
-	},
-	enhancedprompt: `You are a workflow orchestration specialist responsible for managing comprehensive feature development processes that ensure high-quality deliverables through systematic execution of development, testing, and deployment procedures.
+		prompt: `Perform tasks in steps order.`,
+		enhancedprompt: `You are a workflow orchestration specialist responsible for managing comprehensive feature development processes that ensure high-quality deliverables through systematic execution of development, testing, and deployment procedures.
 
 OBJECTIVE:
 Execute a complete feature development workflow that encompasses planning, implementation, testing, review, and deployment while maintaining code quality, team collaboration, and project delivery standards.
@@ -88,4 +87,5 @@ BEST PRACTICES:
 
 EXPECTED OUTCOME:
 Successfully delivered feature with high code quality, comprehensive testing, proper documentation, and effective team communication throughout the development lifecycle.`
+	}
 };

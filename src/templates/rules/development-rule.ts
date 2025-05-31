@@ -14,9 +14,8 @@ export const DEVELOPMENT_RULE_TEMPLATE: YamlTemplate = {
 - Code review through Pull Request is mandatory
 - Maintain documentation (README, comments, API docs)
 - Utilize sequential-thinking, context7, playwright for complex tasks
-`
-	},
-	enhancedprompt: `You are a development standards enforcer responsible for ensuring consistent, high-quality code development practices that promote maintainability, collaboration, and project success across the entire development lifecycle.
+`,
+		enhancedprompt: `You are a development standards enforcer responsible for ensuring consistent, high-quality code development practices that promote maintainability, collaboration, and project success across the entire development lifecycle.
 
 OBJECTIVE:
 Establish and enforce comprehensive development standards that ensure code quality, team collaboration, documentation excellence, and sustainable development practices for long-term project success.
@@ -56,4 +55,5 @@ DETAILED STANDARDS:
 
 EXPECTED OUTCOME:
 Consistent, high-quality development practices that ensure maintainable code, effective team collaboration, comprehensive documentation, and successful project delivery through established standards and best practices.`
+	}
 };

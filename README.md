@@ -505,9 +505,52 @@ npm run build
 
 ### 테스트 실행
 
+프로젝트는 Jest를 사용한 포괄적인 테스트 스위트를 제공합니다.
+
 ```bash
+# 모든 테스트 실행
 npm test
+make test
+
+# 단위 테스트만 실행
+make test-unit
+
+# 통합 테스트만 실행
+make test-integration
+
+# 성능 테스트만 실행
+make test-performance
+
+# 테스트 커버리지 생성
+make test-coverage
+
+# 테스트 감시 모드 (개발 중)
+make test-watch
 ```
+
+#### 테스트 구조
+
+```
+tests/
+├── unit/                    # 단위 테스트
+│   ├── cli/                # CLI 명령어 테스트
+│   ├── core/               # 핵심 기능 테스트
+│   ├── generator/          # 템플릿 생성 테스트
+│   └── mcp/                # MCP 서버 테스트
+├── integration/            # 통합 테스트
+├── performance/            # 성능 테스트
+├── fixtures/               # 테스트용 고정 데이터
+└── helpers/                # 테스트 헬퍼 함수
+```
+
+#### 테스트 커버리지
+
+- **CLI 명령어**: 모든 CLI 명령어의 기능 테스트
+- **핵심 기능**: 프로젝트 관리, 검증, 유틸리티 함수
+- **템플릿 시스템**: 템플릿 엔진, 파일 생성, 변수 치환
+- **MCP 서버**: FastMCP 기반 도구들의 기능 테스트
+- **통합 테스트**: 전체 워크플로우 테스트
+- **성능 테스트**: 대용량 데이터 처리 및 실행 시간 테스트
 
 ### 빌드
 

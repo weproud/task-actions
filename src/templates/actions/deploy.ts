@@ -17,9 +17,8 @@ Please perform the following steps:
 4. Perform health check after deployment
 5. Prepare rollback plan (in case of failure)
 
-Check deployment environment variables and configuration, and perform safe deployment through CI/CD pipeline.`
-	},
-	enhancedprompt: `You are responsible for executing a safe, reliable, and monitored application deployment following industry best practices and ensuring zero-downtime deployment.
+Check deployment environment variables and configuration, and perform safe deployment through CI/CD pipeline.`,
+		enhancedprompt: `You are responsible for executing a safe, reliable, and monitored application deployment following industry best practices and ensuring zero-downtime deployment.
 
 OBJECTIVE:
 Deploy the application to the target environment with comprehensive validation, monitoring, and rollback capabilities to ensure service reliability and minimal risk.
@@ -112,4 +111,5 @@ COMPLIANCE AND DOCUMENTATION:
 
 EXPECTED OUTCOME:
 A successful deployment with the new application version running stably in the target environment, all health checks passing, monitoring systems active, and rollback plan ready for immediate execution if needed.`
+	}
 };

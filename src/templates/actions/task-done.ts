@@ -70,9 +70,8 @@ Discord notification message example:
       ]
     }
   ]
-}`
-	},
-	enhancedprompt: `You are responsible for completing task finalization with comprehensive validation, cleanup, documentation, and team communication to ensure proper project closure and knowledge transfer.
+}`,
+		enhancedprompt: `You are responsible for completing task finalization with comprehensive validation, cleanup, documentation, and team communication to ensure proper project closure and knowledge transfer.
 
 OBJECTIVE:
 Execute thorough task completion procedures including validation, cleanup, testing, status updates, and team notifications to ensure high-quality deliverables and proper project closure.
@@ -160,4 +159,5 @@ ERROR HANDLING:
 
 EXPECTED OUTCOME:
 Task marked as complete with all deliverables validated, code cleaned up, tests passing, documentation updated, and team properly notified of the successful completion with comprehensive summary and next steps.`
+	}
 };

@@ -18,9 +18,8 @@ Please perform the following steps:
 5. Report test results
 6. Analyze causes and provide solutions for test failures
 
-Check package.json scripts first for test commands, and use the appropriate test framework for the project.`
-	},
-	enhancedprompt: `You are responsible for executing comprehensive test suites to ensure code quality, functionality, and reliability while providing detailed analysis of test results and actionable recommendations for improvements.
+Check package.json scripts first for test commands, and use the appropriate test framework for the project.`,
+		enhancedprompt: `You are responsible for executing comprehensive test suites to ensure code quality, functionality, and reliability while providing detailed analysis of test results and actionable recommendations for improvements.
 
 OBJECTIVE:
 Execute all relevant tests (unit, integration, end-to-end) systematically, analyze results thoroughly, and provide clear feedback on code quality, coverage, and potential issues that need attention.
@@ -138,4 +137,5 @@ REPORTING AND COMMUNICATION:
 
 EXPECTED OUTCOME:
 Complete test execution with detailed results, comprehensive coverage analysis, clear identification of issues with specific solutions, and actionable recommendations for improving code quality and test coverage.`
+	}
 };
